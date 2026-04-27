@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>读书会 · 共读笔记</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --parchment: #f8f4ed;
+      --parchment-dark: #efe8d8;
+      --paper: #fffdf9;
+      --ink: #2c1f0e;
+      --ink-light: #5a4030;
+      --ink-muted: #8a7a6a;
+      --gold: #b8860b;
+      --gold-light: #d4a843;
+      --gold-pale: #f0d890;
+      --cream-border: #d8c8a8;
+      --shadow: rgba(44, 31, 14, 0.08);
+      --shadow-deep: rgba(44, 31, 14, 0.14);
+      --member-1: #8b3a1a;
+      --member-2: #2a5a4a;
+      --member-3: #4a3a6a;
+      --member-4: #1a4a6a;
+      --member-5: #6a4a1a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--parchment);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      color: var(--ink);
+      font-family: 'Noto Serif SC', 'Lora', serif;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 45px 20px 38px;
+      border-bottom: 2px solid var(--cream-border);
+      background: linear-gradient(180deg, rgba(184,134,11,0.04) 0%, transparent 100%);
+    }
+    .header-ornament {
+      font-size: 11px;
+      letter-spacing: 8px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    header h1 {
+      font-family: 'Playfair Display', 'Noto Serif SC', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 700;
+      color: var(--ink);
+    }
+    header h1 span { color: var(--gold); font-style: italic; }
+    .header-sub {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      letter-spacing: 3px;
+    }
+
+    .container { max-width: 920px; margin: 0 auto; padding: 0 18px; }
+
+    /* Member Bar */
+    .member-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 18px;
+      margin: 22px 0;
+      background: var(--paper);
+      border: 1px solid var(--cream-border);
+      border-radius: 4px;
+    }
+    .member-bar-label {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      color: var(--ink-muted);
+      margin-right: 8px;
+    }
+    .member-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--cream-border);
+      background: transparent;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.82rem;
+      color: var(--ink-muted);
+      cursor: pointer;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .member-tag:hover { border-color: var(--ink); color: var(--ink); }
+    .member-tag.active {
+      background: var(--ink);
+      color: var(--parchment);
+      border-color: var(--ink);
+    }
+    .member-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .member-tag.active .member-dot { background: var(--gold) !important; }
+
+    /* Stats */
+    .stats-bar {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 20px;
+      margin-bottom: 22px;
+      background: var(--parchment-dark);
+      border: 1px solid var(--cream-border);
+      border-radius: 4px;
+    }
+    .stat-item { text-align: center; min-width: 70px; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.68rem;
+      color: var(--ink-muted);
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 7px 16px;
+      border: 1px solid var(--cream-border);
+      background: transparent;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .tab-btn.active {
+      background: var(--ink);
+      color: var(--parchment);
+      border-color: var(--ink);
+    }
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(184,134,11,0.22);
+    }
+    .btn-add:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-add svg { width: 13px; height: 13px; }
+
+    /* Current Section */
+    .current-section { margin-bottom: 32px; }
+    .section-title {
+      font-size: 0.72rem;
+      letter-spacing: 2.5px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+    .current-card {
+      background: var(--paper);
+      border: 1px solid var(--cream-border);
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 3px 20px var(--shadow);
+    }
+    .current-header {
+      padding: 18px 22px;
+      background: linear-gradient(135deg, var(--ink) 0%, #3a2a18 100%);
+      color: var(--parchment);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .current-book-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .current-book-author {
+      font-size: 0.82rem;
+      opacity: 0.7;
+      font-style: italic;
+    }
+    .current-meta {
+      text-align: right;
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+    .current-meta strong { color: var(--gold-pale); }
+
+    .current-body { padding: 18px 22px; }
+    .chapter-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .chapter-list-title {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+    }
+    .btn-add-chapter {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .btn-add-chapter:hover { background: var(--gold); color: #fff; }
+
+    .chapter-timeline {
+      position: relative;
+      padding-left: 22px;
+    }
+    .chapter-timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(180deg, var(--gold), var(--cream-border));
+      border-radius: 1px;
+    }
+    .chapter-item {
+      position: relative;
+      padding: 12px 0 12px 18px;
+      border-bottom: 1px solid var(--parchment-dark);
+    }
+    .chapter-item:last-child { border-bottom: none; }
+    .chapter-dot {
+      position: absolute;
+      left: -18px;
+      top: 16px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--paper);
+    }
+    .chapter-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chapter-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chapter-name {
+      font-weight: 600;
+      color: var(--ink);
+      font-size: 0.92rem;
+    }
+    .chapter-author-badge {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: #fff;
+    }
+    .chapter-date {
+      font-size: 0.72rem;
+      color: var(--ink-muted);
+    }
+    .chapter-note {
+      margin-top: 8px;
+      font-size: 0.86rem;
+      color: var(--ink-light);
+      line-height: 1.7;
+      padding-left: 4px;
+      border-left: 2px solid var(--gold-pale);
+    }
+    .chapter-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .chapter-btn {
+      padding: 3px 9px;
+      border: 1px solid var(--cream-border);
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.7rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .chapter-btn:hover { border-color: var(--ink); color: var(--ink); }
+    .chapter-btn.danger:hover { border-color: var(--member-1); color: var(--member-1); }
+
+    .no-chapters {
+      text-align: center;
+      padding: 28px;
+      color: var(--ink-muted);
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+
+    .current-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--parchment-dark);
+      text-align: right;
+    }
+    .btn-finish {
+      padding: 7px 20px;
+      background: var(--member-2);
+      color: #fff;
+      border: none;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .btn-finish:hover { background: #3a7a5a; }
+
+    /* History */
+    .history-section { margin-bottom: 50px; }
+    .history-card {
+      background: #fff;
+      border: 1px solid var(--cream-border);
+      border-radius: 4px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px var(--shadow);
+    }
+    .history-header {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .history-header:hover { background: var(--parchment-dark); }
+    .history-book-info h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .history-book-meta {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+    }
+    .history-book-meta span { margin-right: 12px; }
+    .history-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .history-chapters-badge {
+      font-size: 0.68rem;
+      padding: 2px 9px;
+      background: var(--parchment-dark);
+      color: var(--gold);
+      border-radius: 10px;
+    }
+    .history-expand-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--ink-muted);
+      transition: transform 0.3s;
+    }
+    .history-card.expanded .history-expand-icon { transform: rotate(180deg); }
+    .history-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: var(--parchment);
+    }
+    .history-card.expanded .history-body { max-height: 3000px; }
+    .history-body-inner {
+      padding: 16px 18px 18px;
+      border-top: 1px solid var(--cream-border);
+    }
+    .history-note-item {
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--cream-border);
+    }
+    .history-note-item:last-child { border-bottom: none; }
+    .history-note-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 5px;
+    }
+    .history-note-chapter {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--ink);
+    }
+    .history-note-date {
+      font-size: 0.7rem;
+      color: var(--ink-muted);
+    }
+    .history-note-content {
+      font-size: 0.82rem;
+      color: var(--ink-light);
+      line-height: 1.68;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 18px;
+      color: var(--ink-muted);
+    }
+    .empty-icon { font-size: 38px; margin-bottom: 12px; opacity: 0.35; }
+    .empty-text { font-size: 0.88rem; letter-spacing: 2px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(44,31,14,0.5);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--parchment);
+      border: 1px solid var(--cream-border);
+      border-radius: 5px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 82vh;
+      overflow-y: auto;
+      box-shadow: 0 18px 45px rgba(44,31,14,0.22);
+      transform: translateY(16px);
+      transition: transform 0.22s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid var(--cream-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.12rem;
+      color: var(--ink);
+    }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--cream-border);
+      background: transparent;
+      color: var(--ink-muted);
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { background: var(--ink); color: var(--parchment); }
+    .modal-body { padding: 18px 24px 20px; }
+    .form-row { margin-bottom: 16px; }
+    .form-row label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--cream-border);
+      background: #fff;
+      color: var(--ink);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.88rem;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(184,134,11,0.1);
+    }
+    .form-row textarea { resize: vertical; min-height: 90px; line-height: 1.65; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rating-input { display: flex; gap: 4px; }
+    .rating-star {
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--gold-pale);
+      transition: color 0.15s, transform 0.15s;
+    }
+    .rating-star:hover,
+    .rating-star.selected { color: var(--gold); transform: scale(1.1); }
+    .modal-footer {
+      display: flex;
+      gap: 9px;
+      justify-content: flex-end;
+      padding: 0 24px 22px;
+    }
+    .btn-cancel {
+      padding: 8px 18px;
+      border: 1px solid var(--cream-border);
+      background: transparent;
+      color: var(--ink-muted);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .btn-cancel:hover { border-color: var(--ink); color: var(--ink); }
+    .btn-save {
+      padding: 8px 22px;
+      background: var(--ink);
+      color: var(--parchment);
+      border: none;
+      font-family: 'Noto Serif SC', serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .btn-save:hover { background: var(--gold); }
+
+    .author-input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .author-input-row input { flex: 1; }
+    .remember-check {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: var(--ink-muted);
+      cursor: pointer;
+    }
+    .remember-check input { width: auto; cursor: pointer; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: var(--ink);
+      color: var(--parchment);
+      padding: 11px 20px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 18px var(--shadow-deep);
+      transform: translateY(18px);
+      opacity: 0;
+      transition: all 0.25s;
+      z-index: 200;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .current-header { flex-direction: column; }
+      .current-meta { text-align: left; margin-top: 8px; }
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--parchment-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-ornament">✦ 共读时光 ✦</div>
+  <h1>书香 <span>读书会</span></h1>
+  <p class="header-sub">一群人 · 一本书 · 每一章的心得</p>
+</header>
+
+<div class="container">
+  <!-- Member Bar -->
+  <div class="member-bar">
+    <span class="member-bar-label">参与者</span>
+    <button class="member-tag active" data-member="all" onclick="selectMember('all', this)">
+      <span class="member-dot" style="background:var(--gold)"></span>
+      全部
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num" id="stat-reading">0</div>
+      <div class="stat-label">正在阅读</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="stat-finished">0</div>
+      <div class="stat-label">已读完</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="stat-chapters">0</div>
+      <div class="stat-label">心得笔记</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" id="stat-members">0</div>
+      <div class="stat-label">参与人数</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="current" onclick="switchTab('current', this)">当前阅读</button>
+      <button class="tab-btn" data-tab="history" onclick="switchTab('history', this)">历史记录</button>
+    </div>
+    <button class="btn-add" onclick="openNewBookModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      开始新书
+    </button>
+  </div>
+
+  <!-- Sections -->
+  <div id="current-section" class="current-section"></div>
+  <div id="history-section" class="history-section" style="display:none;"></div>
+</div>
+
+<!-- New Book Modal -->
+<div class="modal-overlay" id="new-book-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">开始阅读新书</div>
+      <button class="modal-close" onclick="closeModal('new-book-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>书名</label>
+        <input type="text" id="nb-title" placeholder="书名" />
+      </div>
+      <div class="form-row">
+        <label>作者</label>
+        <input type="text" id="nb-author" placeholder="作者" />
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>开始日期</label>
+          <input type="date" id="nb-start" />
+        </div>
+        <div class="form-row">
+          <label>分类</label>
+          <select id="nb-category">
+            <option value="novel">小说</option>
+            <option value="history">历史</option>
+            <option value="science">科学</option>
+            <option value="philosophy">哲学</option>
+            <option value="tech">技术</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('new-book-modal')">取消</button>
+      <button class="btn-save" onclick="saveNewBook()">开始阅读</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chapter Modal -->
+<div class="modal-overlay" id="chapter-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">添加章节心得</div>
+      <button class="modal-close" onclick="closeModal('chapter-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>你的名字</label>
+        <div class="author-input-row">
+          <input type="text" id="ch-author" placeholder="输入你的名字或昵称" />
+          <label class="remember-check">
+            <input type="checkbox" id="ch-remember" checked />
+            记住
+          </label>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>章节名称/编号</label>
+          <input type="text" id="ch-chapter" placeholder="如：第一章 或 第3章" />
+        </div>
+        <div class="form-row">
+          <label>阅读日期</label>
+          <input type="date" id="ch-date" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label>心得体会</label>
+        <textarea id="ch-content" placeholder="写下你的读书感悟、精彩摘录、思考收获……"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('chapter-modal')">取消</button>
+      <button class="btn-save" onclick="saveChapter()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Chapter Modal -->
+<div class="modal-overlay" id="edit-chapter-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">编辑章节心得</div>
+      <button class="modal-close" onclick="closeModal('edit-chapter-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>作者</label>
+        <input type="text" id="ech-author" />
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>章节名称/编号</label>
+          <input type="text" id="ech-chapter" />
+        </div>
+        <div class="form-row">
+          <label>阅读日期</label>
+          <input type="date" id="ech-date" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label>心得体会</label>
+        <textarea id="ech-content"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('edit-chapter-modal')">取消</button>
+      <button class="btn-save" onclick="updateChapter()">保存修改</button>
+    </div>
+  </div>
+</div>
+
+<!-- Finish Modal -->
+<div class="modal-overlay" id="finish-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">完成阅读</div>
+      <button class="modal-close" onclick="closeModal('finish-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px;color:var(--ink-muted);font-size:0.85rem;">
+        恭喜读完这本书！请为整体阅读体验评分。
+      </p>
+      <div class="form-row">
+        <label>评分</label>
+        <div class="rating-input" id="finish-rating">
+          <span class="rating-star" data-v="1" onclick="setFinishRating(1)">★</span>
+          <span class="rating-star" data-v="2" onclick="setFinishRating(2)">★</span>
+          <span class="rating-star" data-v="3" onclick="setFinishRating(3)">★</span>
+          <span class="rating-star" data-v="4" onclick="setFinishRating(4)">★</span>
+          <span class="rating-star" data-v="5" onclick="setFinishRating(5)">★</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>总结（可选）</label>
+        <textarea id="finish-summary" placeholder="整体感受、推荐理由、印象深刻的点……"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('finish-modal')">取消</button>
+      <button class="btn-save" style="background:var(--member-2)" onclick="finishBook()">完成阅读</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Data ──
+  const STORAGE_KEY = 'reading_club_cycles_v2';
+  const AUTHOR_KEY = 'reading_club_last_author';
+  let cycles = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let currentCycleId = null;
+  let editingChapterId = null;
+  let finishRating = 0;
+  let currentMemberFilter = 'all';
+
+  // Seed data
+  if (cycles.length === 0) {
+    cycles = [
+      {
+        id: 1,
+        title: '百年孤独',
+        author: '加西亚·马尔克斯',
+        category: 'novel',
+        startDate: '2024-03-01',
+        endDate: '2024-04-15',
+        rating: 5,
+        summary: '魔幻现实主义的巅峰，孤独是贯穿始终的主题。',
+        notes: [
+          { id: 101, chapter: '第一章', date: '2024-03-05', member: '小龙', content: '开篇太经典了：\'许多年之后，面对行刑队……\' 布恩迪亚家族的故事由此展开。' },
+          { id: 102, chapter: '第二章', date: '2024-03-12', member: '小龙', content: '吉普赛人带来的冰块和磁铁，让马孔多第一次接触外界。' },
+          { id: 103, chapter: '第一章', date: '2024-03-08', member: '阿明', content: '何塞·阿尔卡蒂奥·布恩迪亚是个有趣的梦想家，他那种对新事物的痴迷让我想起很多创业者。' },
+          { id: 104, chapter: '第三章', date: '2024-03-20', member: '小芳', content: '乌尔苏拉太坚强了，她是整个家族的定海神针。没有她，这个家早就散了。' }
+        ]
+      },
+      {
+        id: 2,
+        title: '人类简史',
+        author: '尤瓦尔·赫拉利',
+        category: 'history',
+        startDate: '2025-04-01',
+        endDate: null,
+        rating: 0,
+        summary: '',
+        notes: [
+          { id: 201, chapter: '第一章：认知革命', date: '2025-04-05', member: '小龙', content: '智人能统治地球靠的是虚构故事的能力——国家、宗教、公司都是想象出来的。震撼的观点！' },
+          { id: 202, chapter: '第二章：农业革命', date: '2025-04-12', member: '阿明', content: '小麦驯化了人类，而非人类驯化小麦。这个角度从来没想过，赫拉利确实会讲故事。' },
+          { id: 203, chapter: '第一章：认知革命', date: '2025-04-08', member: '小芳', content: '\"虚构故事\"这个概念让我想到品牌、IP，本质上都是在讲故事。商业世界里这个能力太重要了。' }
+        ]
+      }
+    ];
+    save();
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cycles));
+    updateStats();
+    render();
+  }
+
+  // ── Member Colors ──
+  const memberColors = [
+    '#8b3a1a', '#2a5a4a', '#4a3a6a', '#1a4a6a', '#6a4a1a',
+    '#3a6a5a', '#5a2a4a', '#2a4a6a', '#6a3a2a', '#4a6a3a'
+  ];
+  const memberColorMap = {};
+
+  function getMemberColor(name) {
+    if (!memberColorMap[name]) {
+      const used = Object.values(memberColorMap);
+      const available = memberColors.filter(c => !used.includes(c));
+      memberColorMap[name] = available.length > 0
+        ? available[0]
+        : memberColors[Object.keys(memberColorMap).length % memberColors.length];
+    }
+    return memberColorMap[name];
+  }
+
+  function getAllMembers() {
+    const members = new Set();
+    cycles.forEach(c => c.notes.forEach(n => members.add(n.member)));
+    return Array.from(members);
+  }
+
+  // ── Stats ──
+  function updateStats() {
+    const active = cycles.filter(c => !c.endDate);
+    const finished = cycles.filter(c => c.endDate);
+    const totalNotes = cycles.reduce((s, c) => s + c.notes.length, 0);
+    const members = getAllMembers();
+
+    document.getElementById('stat-reading').textContent = active.length;
+    document.getElementById('stat-finished').textContent = finished.length;
+    document.getElementById('stat-chapters').textContent = totalNotes;
+    document.getElementById('stat-members').textContent = members.length;
+
+    // Update member bar
+    const bar = document.querySelector('.member-bar');
+    bar.innerHTML = `
+      <span class="member-bar-label">参与者</span>
+      <button class="member-tag ${currentMemberFilter === 'all' ? 'active' : ''}" data-member="all" onclick="selectMember('all', this)">
+        <span class="member-dot" style="background:var(--gold)"></span>
+        全部
+      </button>
+      ${members.map(m => `
+        <button class="member-tag ${currentMemberFilter === m ? 'active' : ''}" data-member="${escAttr(m)}" onclick="selectMember('${escAttr(m)}', this)">
+          <span class="member-dot" style="background:${getMemberColor(m)}"></span>
+          ${escHtml(m)}
+        </button>
+      `).join('')}
+    `;
+  }
+
+  // ── Member Filter ──
+  function selectMember(member, btn) {
+    currentMemberFilter = member;
+    document.querySelectorAll('.member-tag').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  // ── Render ──
+  function render() {
+    renderCurrent();
+    renderHistory();
+  }
+
+  const categoryNames = {
+    novel: '小说', history: '历史', science: '科学',
+    philosophy: '哲学', tech: '技术', other: '其他'
+  };
+
+  function filterNotes(notes) {
+    if (currentMemberFilter === 'all') return notes;
+    return notes.filter(n => n.member === currentMemberFilter);
+  }
+
+  function renderCurrent() {
+    const section = document.getElementById('current-section');
+    const active = cycles.filter(c => !c.endDate);
+
+    if (active.length === 0) {
+      section.innerHTML = `
+        <div class="section-title">当前阅读</div>
+        <div class="empty-state">
+          <div class="empty-icon">📖</div>
+          <div class="empty-text">还没有正在阅读的书</div>
+        </div>
+      `;
+      return;
+    }
+
+    section.innerHTML = active.map(cycle => {
+      const filtered = filterNotes(cycle.notes);
+      const sorted = [...filtered].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      return `
+        <div class="section-title">当前阅读 · ${categoryNames[cycle.category] || '其他'}</div>
+        <div class="current-card">
+          <div class="current-header">
+            <div>
+              <div class="current-book-title">${escHtml(cycle.title)}</div>
+              <div class="current-book-author">${escHtml(cycle.author || '佚名')}</div>
+            </div>
+            <div class="current-meta">
+              <div>开始于 <strong>${formatDate(cycle.startDate)}</strong></div>
+              <div>${filtered.length} 条心得</div>
+            </div>
+          </div>
+          <div class="current-body">
+            <div class="chapter-list-header">
+              <span class="chapter-list-title">章节时间线</span>
+              <button class="btn-add-chapter" onclick="openChapterModal(${cycle.id})">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                添加心得
+              </button>
+            </div>
+            ${sorted.length === 0 ? `<div class="no-chapters">${currentMemberFilter === 'all' ? '还没有章节记录' : '该成员还没有添加心得'}</div>` : `
+              <div class="chapter-timeline">
+                ${sorted.map(n => `
+                  <div class="chapter-item">
+                    <div class="chapter-dot" style="background:${getMemberColor(n.member)}"></div>
+                    <div class="chapter-item-header">
+                        <div class="chapter-info">
+                          <span class="chapter-name">${escHtml(n.chapter)}</span>
+                          <span class="chapter-author-badge" style="background:${getMemberColor(n.member)}">${escHtml(n.member)}</span>
+                        </div>
+                        <span class="chapter-date">${formatDate(n.date)}</span>
+                    </div>
+                    <div class="chapter-note">${escHtml(n.content)}</div>
+                    ${n.member === localStorage.getItem(AUTHOR_KEY) || currentMemberFilter === 'all' ? `
+                      <div class="chapter-actions">
+                        <button class="chapter-btn" onclick="editChapter(${cycle.id}, ${n.id})">编辑</button>
+                        <button class="chapter-btn danger" onclick="deleteChapter(${cycle.id}, ${n.id})">删除</button>
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+          <div class="current-footer">
+            <button class="btn-finish" onclick="openFinishModal(${cycle.id})">完成阅读</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderHistory() {
+    const section = document.getElementById('history-section');
+    const finished = cycles.filter(c => c.endDate).sort((a, b) => (b.endDate || '').localeCompare(a.endDate || ''));
+
+    if (finished.length === 0) {
+      section.innerHTML = `
+        <div class="section-title">历史记录</div>
+        <div class="empty-state">
+          <div class="empty-icon">📚</div>
+          <div class="empty-text">还没有读完的书</div>
+        </div>
+      `;
+      return;
+    }
+
+    section.innerHTML = `
+      <div class="section-title">历史记录 · ${finished.length} 本已读完</div>
+      ${finished.map(cycle => {
+        const filtered = filterNotes(cycle.notes);
+        const sorted = [...filtered].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+        return `
+          <div class="history-card" id="history-${cycle.id}">
+            <div class="history-header" onclick="toggleHistory(${cycle.id})">
+              <div class="history-book-info">
+                <h3>${escHtml(cycle.title)}</h3>
+                <div class="history-book-meta">
+                  <span>${escHtml(cycle.author || '佚名')}</span>
+                  <span>${formatDate(cycle.startDate)} ~ ${formatDate(cycle.endDate)}</span>
+                </div>
+              </div>
+              <div class="history-toggle">
+                <span class="history-chapters-badge">${filtered.length} 条</span>
+                <svg class="history-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="history-body">
+              <div class="history-body-inner">
+                ${cycle.rating ? `<div style="font-size:0.8rem;color:var(--ink-muted);margin-bottom:14px;">评分：<strong style="color:var(--gold)">${'★'.repeat(cycle.rating)}${'☆'.repeat(5-cycle.rating)}</strong></div>` : ''}
+                ${cycle.summary ? `<div style="font-size:0.84rem;color:var(--ink-muted);margin-bottom:14px;font-style:italic;">${escHtml(cycle.summary)}</div>` : ''}
+                ${sorted.map(n => `
+                  <div class="history-note-item">
+                    <div class="history-note-header">
+                      <span class="history-note-chapter">${escHtml(n.chapter)}</span>
+                      <span class="chapter-author-badge" style="background:${getMemberColor(n.member)}">${escHtml(n.member)}</span>
+                      <span class="history-note-date">${formatDate(n.date)}</span>
+                    </div>
+                    <div class="history-note-content">${escHtml(n.content)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    `;
+  }
+
+  function toggleHistory(id) {
+    const card = document.getElementById('history-' + id);
+    card.classList.toggle('expanded');
+  }
+
+  // ── Tabs ──
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('current-section').style.display = tab === 'current' ? 'block' : 'none';
+    document.getElementById('history-section').style.display = tab === 'history' ? 'block' : 'none';
+  }
+
+  // ── Modal Actions ──
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function openNewBookModal() {
+    document.getElementById('nb-title').value = '';
+    document.getElementById('nb-author').value = '';
+    document.getElementById('nb-start').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('nb-category').value = 'novel';
+    document.getElementById('new-book-modal').classList.add('open');
+  }
+
+  function saveNewBook() {
+    const title = document.getElementById('nb-title').value.trim();
+    if (!title) { showToast('请填写书名'); return; }
+
+    cycles.push({
+      id: Date.now(),
+      title,
+      author: document.getElementById('nb-author').value.trim(),
+      category: document.getElementById('nb-category').value,
+      startDate: document.getElementById('nb-start').value,
+      endDate: null,
+      rating: 0,
+      summary: '',
+      notes: []
+    });
+    save();
+    closeModal('new-book-modal');
+    showToast('已开始阅读《' + title + '》');
+  }
+
+  function openChapterModal(cycleId) {
+    currentCycleId = cycleId;
+    const lastAuthor = localStorage.getItem(AUTHOR_KEY) || '';
+    document.getElementById('ch-author').value = lastAuthor;
+    document.getElementById('ch-remember').checked = !!lastAuthor;
+    document.getElementById('ch-chapter').value = '';
+    document.getElementById('ch-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('ch-content').value = '';
+    document.getElementById('chapter-modal').classList.add('open');
+  }
+
+  function saveChapter() {
+    const member = document.getElementById('ch-author').value.trim();
+    const chapter = document.getElementById('ch-chapter').value.trim();
+    const date = document.getElementById('ch-date').value;
+    const content = document.getElementById('ch-content').value.trim();
+
+    if (!member) { showToast('请填写你的名字'); return; }
+    if (!chapter) { showToast('请填写章节名称'); return; }
+    if (!content) { showToast('请写点心得吧'); return; }
+
+    if (document.getElementById('ch-remember').checked) {
+      localStorage.setItem(AUTHOR_KEY, member);
+    } else {
+      localStorage.removeItem(AUTHOR_KEY);
+    }
+
+    const cycle = cycles.find(c => c.id === currentCycleId);
+    if (cycle) {
+      cycle.notes.push({ id: Date.now(), chapter, date, member, content });
+      save();
+    }
+    closeModal('chapter-modal');
+    showToast('心得已保存');
+  }
+
+  function editChapter(cycleId, noteId) {
+    currentCycleId = cycleId;
+    editingChapterId = noteId;
+    const cycle = cycles.find(c => c.id === cycleId);
+    const note = cycle?.notes.find(n => n.id === noteId);
+    if (!note) return;
+
+    document.getElementById('ech-author').value = note.member || '';
+    document.getElementById('ech-chapter').value = note.chapter || '';
+    document.getElementById('ech-date').value = note.date || '';
+    document.getElementById('ech-content').value = note.content || '';
+    document.getElementById('edit-chapter-modal').classList.add('open');
+  }
+
+  function updateChapter() {
+    const cycle = cycles.find(c => c.id === currentCycleId);
+    const note = cycle?.notes.find(n => n.id === editingChapterId);
+    if (!note) return;
+
+    note.member = document.getElementById('ech-author').value.trim();
+    note.chapter = document.getElementById('ech-chapter').value.trim();
+    note.date = document.getElementById('ech-date').value;
+    note.content = document.getElementById('ech-content').value.trim();
+    save();
+    closeModal('edit-chapter-modal');
+    showToast('已更新');
+  }
+
+  function deleteChapter(cycleId, noteId) {
+    if (!confirm('确认删除这条心得？')) return;
+    const cycle = cycles.find(c => c.id === cycleId);
+    if (cycle) {
+      cycle.notes = cycle.notes.filter(n => n.id !== noteId);
+      save();
+      showToast('已删除');
+    }
+  }
+
+  function openFinishModal(cycleId) {
+    currentCycleId = cycleId;
+    finishRating = 0;
+    updateFinishRatingUI(0);
+    document.getElementById('finish-summary').value = '';
+    document.getElementById('finish-modal').classList.add('open');
+  }
+
+  function setFinishRating(v) {
+    finishRating = v;
+    updateFinishRatingUI(v);
+  }
+
+  function updateFinishRatingUI(v) {
+    document.querySelectorAll('#finish-rating .rating-star').forEach(s => {
+      s.classList.toggle('selected', parseInt(s.dataset.v) <= v);
+    });
+  }
+
+  function finishBook() {
+    const cycle = cycles.find(c => c.id === currentCycleId);
+    if (cycle) {
+      cycle.endDate = new Date().toISOString().slice(0, 10);
+      cycle.rating = finishRating;
+      cycle.summary = document.getElementById('finish-summary').value.trim();
+      save();
+      closeModal('finish-modal');
+      showToast('恭喜读完《' + cycle.title + '》！');
+    }
+  }
+
+  // ── Utils ──
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y, m, day] = d.split('-');
+    return `${parseInt(m)}月${parseInt(day)}日`;
+  }
+
+  function escHtml(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>');
+  }
+
+  function escAttr(s) {
+    return (s || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // ── Init ──
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+  });
+
+  updateStats();
+  render();
+</script>
+</body>
+</html>
