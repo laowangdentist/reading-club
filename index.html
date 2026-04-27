@@ -1,1295 +1,1443 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>读书会 · 共读笔记</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --parchment: #f8f4ed;
-      --parchment-dark: #efe8d8;
-      --paper: #fffdf9;
-      --ink: #2c1f0e;
-      --ink-light: #5a4030;
-      --ink-muted: #8a7a6a;
-      --gold: #b8860b;
-      --gold-light: #d4a843;
-      --gold-pale: #f0d890;
-      --cream-border: #d8c8a8;
-      --shadow: rgba(44, 31, 14, 0.08);
-      --shadow-deep: rgba(44, 31, 14, 0.14);
-      --member-1: #8b3a1a;
-      --member-2: #2a5a4a;
-      --member-3: #4a3a6a;
-      --member-4: #1a4a6a;
-      --member-5: #6a4a1a;
-    }
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE11">
+<meta charset="utf-8">
+<title>Lunia GM 工具</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: #0a0e1a;
+  color: #e0e6f0;
+  min-height: 100vh;
+}
+.header {
+  background: linear-gradient(135deg, #0f1b3d 0%, #1a1040 100%);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #e94560;
+  box-shadow: 0 2px 20px rgba(233,69,96,0.2);
+}
+.header h1 { font-size:20px; color:#fff; }
+.header h1 span { color:#e94560; }
+.status-area { display:flex; align-items:center; gap:8px; }
+.status-dot {
+  width:12px; height:12px; border-radius:50%;
+  background:#e74c3c; display:inline-block;
+  box-shadow: 0 0 8px rgba(231,76,60,0.6);
+  transition: background 0.3s;
+}
+.status-dot.ok { background:#2ecc71; box-shadow: 0 0 8px rgba(46,204,113,0.6); }
+.status-text { font-size:13px; color:#a8b2c1; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+.tabs {
+  display:flex; background:#111827; padding:0 8px;
+  border-bottom:1px solid #1e2a4a; flex-wrap:wrap;
+}
+.tab-btn {
+  padding:10px 16px; cursor:pointer;
+  font-size:13px; font-weight:bold;
+  color:#a8b2c1; background:transparent;
+  border:none; border-bottom:3px solid transparent;
+  transition: all 0.2s;
+}
+.tab-btn:hover { color:#fff; background:rgba(233,69,96,0.1); }
+.tab-btn.active { color:#fff; border-bottom-color:#e94560; background:rgba(233,69,96,0.08); }
 
-    body {
-      background-color: var(--parchment);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-      color: var(--ink);
-      font-family: 'Noto Serif SC', 'Lora', serif;
-      min-height: 100vh;
-      line-height: 1.6;
-    }
+.content { padding:16px 20px; padding-bottom:140px; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
 
-    /* Header */
-    header {
-      text-align: center;
-      padding: 45px 20px 38px;
-      border-bottom: 2px solid var(--cream-border);
-      background: linear-gradient(180deg, rgba(184,134,11,0.04) 0%, transparent 100%);
-    }
-    .header-ornament {
-      font-size: 11px;
-      letter-spacing: 8px;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    header h1 {
-      font-family: 'Playfair Display', 'Noto Serif SC', serif;
-      font-size: clamp(1.8rem, 5vw, 2.8rem);
-      font-weight: 700;
-      color: var(--ink);
-    }
-    header h1 span { color: var(--gold); font-style: italic; }
-    .header-sub {
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: var(--ink-muted);
-      letter-spacing: 3px;
-    }
+.card {
+  background: #141c30;
+  border: 1px solid #1e2a4a;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size:14px; font-weight:bold; color:#fff;
+  margin-bottom:12px; padding-bottom:6px;
+  border-bottom:1px solid #1e2a4a;
+}
+.card-title .icon { margin-right:6px; }
 
-    .container { max-width: 920px; margin: 0 auto; padding: 0 18px; }
+.form-row {
+  display:flex; align-items:center; margin-bottom:8px; gap:8px;
+}
+.form-label {
+  min-width:90px; font-size:12px; font-weight:bold; color:#c0c8d8;
+  text-align:right;
+}
+.form-input {
+  flex:1; max-width:300px;
+  padding:7px 10px; font-size:12px;
+  background:#0d1b3e; color:#fff;
+  border:1px solid #2a3a5c; border-radius:4px;
+  outline:none;
+}
+.form-input:focus { border-color:#e94560; }
+select.form-input { cursor:pointer; }
 
-    /* Member Bar */
-    .member-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 18px;
-      margin: 22px 0;
-      background: var(--paper);
-      border: 1px solid var(--cream-border);
-      border-radius: 4px;
-    }
-    .member-bar-label {
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      color: var(--ink-muted);
-      margin-right: 8px;
-    }
-    .member-tag {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border: 1px solid var(--cream-border);
-      background: transparent;
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.82rem;
-      color: var(--ink-muted);
-      cursor: pointer;
-      border-radius: 20px;
-      transition: all 0.2s;
-    }
-    .member-tag:hover { border-color: var(--ink); color: var(--ink); }
-    .member-tag.active {
-      background: var(--ink);
-      color: var(--parchment);
-      border-color: var(--ink);
-    }
-    .member-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .member-tag.active .member-dot { background: var(--gold) !important; }
+.btn {
+  padding:7px 14px; font-size:12px; font-weight:bold;
+  border:none; border-radius:4px; cursor:pointer;
+  transition: all 0.15s; color:#fff;
+}
+.btn:active { transform:scale(0.97); }
+.btn-primary { background:#e94560; }
+.btn-primary:hover { background:#ff6b81; }
+.btn-success { background:#2ecc71; color:#000; }
+.btn-success:hover { background:#3dd684; }
+.btn-warning { background:#f39c12; }
+.btn-warning:hover { background:#f5b041; }
+.btn-danger { background:#e74c3c; }
+.btn-danger:hover { background:#f1948a; }
+.btn-info { background:#3498db; }
+.btn-info:hover { background:#5dade2; }
+.btn-group { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
 
-    /* Stats */
-    .stats-bar {
-      display: flex;
-      gap: 18px;
-      justify-content: center;
-      flex-wrap: wrap;
-      padding: 20px;
-      margin-bottom: 22px;
-      background: var(--parchment-dark);
-      border: 1px solid var(--cream-border);
-      border-radius: 4px;
-    }
-    .stat-item { text-align: center; min-width: 70px; }
-    .stat-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.7rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
-    }
-    .stat-label {
-      font-size: 0.68rem;
-      color: var(--ink-muted);
-      letter-spacing: 1.5px;
-      margin-top: 4px;
-    }
+.quick-btns { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.quick-btn {
+  padding:5px 12px; font-size:11px; font-weight:bold;
+  background:#0f3460; color:#fff; border:1px solid #1a4a80;
+  border-radius:4px; cursor:pointer;
+}
+.quick-btn:hover { background:#1a5a90; border-color:#3498db; }
 
-    /* Toolbar */
-    .toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 22px;
-    }
-    .tabs { display: flex; gap: 5px; flex-wrap: wrap; }
-    .tab-btn {
-      padding: 7px 16px;
-      border: 1px solid var(--cream-border);
-      background: transparent;
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.8rem;
-      color: var(--ink-muted);
-      cursor: pointer;
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
-    .tab-btn:hover { border-color: var(--ink); color: var(--ink); }
-    .tab-btn.active {
-      background: var(--ink);
-      color: var(--parchment);
-      border-color: var(--ink);
-    }
-    .btn-add {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      background: var(--gold);
-      color: #fff;
-      border: none;
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.82rem;
-      cursor: pointer;
-      border-radius: 2px;
-      transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(184,134,11,0.22);
-    }
-    .btn-add:hover { background: var(--gold-light); transform: translateY(-1px); }
-    .btn-add svg { width: 13px; height: 13px; }
+.result-box {
+  margin-top:10px; padding:10px 14px;
+  background:#0a1020; border:1px solid #1e2a4a;
+  border-radius:4px; min-height:24px;
+  font-size:13px; line-height:1.6;
+}
+.result-box.success { border-color:#2ecc71; color:#2ecc71; }
+.result-box.error { border-color:#e74c3c; color:#e74c3c; }
+.result-box.warning { border-color:#f39c12; color:#f39c12; }
+.result-box.info { border-color:#3498db; color:#3498db; }
 
-    /* Current Section */
-    .current-section { margin-bottom: 32px; }
-    .section-title {
-      font-size: 0.72rem;
-      letter-spacing: 2.5px;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, var(--gold), transparent);
-    }
-    .current-card {
-      background: var(--paper);
-      border: 1px solid var(--cream-border);
-      border-radius: 4px;
-      overflow: hidden;
-      box-shadow: 0 3px 20px var(--shadow);
-    }
-    .current-header {
-      padding: 18px 22px;
-      background: linear-gradient(135deg, var(--ink) 0%, #3a2a18 100%);
-      color: var(--parchment);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    .current-book-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-    .current-book-author {
-      font-size: 0.82rem;
-      opacity: 0.7;
-      font-style: italic;
-    }
-    .current-meta {
-      text-align: right;
-      font-size: 0.75rem;
-      opacity: 0.7;
-    }
-    .current-meta strong { color: var(--gold-pale); }
+.sql-area {
+  width:100%; min-height:80px; padding:8px;
+  font-family:Consolas,monospace; font-size:12px;
+  background:#0d1b3e; color:#2ecc71;
+  border:1px solid #2a3a5c; border-radius:4px;
+  outline:none; resize:vertical;
+}
+.sql-area:focus { border-color:#e94560; }
+.sql-result-wrap {
+  width:100%; overflow-x:auto;
+  background:#0a1020; border:1px solid #1e2a4a;
+  border-radius:4px; min-height:80px;
+}
 
-    .current-body { padding: 18px 22px; }
-    .chapter-list-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .chapter-list-title {
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      color: var(--ink-muted);
-      text-transform: uppercase;
-    }
-    .btn-add-chapter {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border: 1px solid var(--gold);
-      background: transparent;
-      color: var(--gold);
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.75rem;
-      cursor: pointer;
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
-    .btn-add-chapter:hover { background: var(--gold); color: #fff; }
+.log-panel {
+  position:fixed; bottom:0; left:0; right:0;
+  background:#080c18; border-top:1px solid #1e2a4a;
+  padding:6px 14px; max-height:100px; overflow-y:auto;
+  font-family:Consolas,monospace; font-size:10px; color:#556;
+}
+.log-panel .log-line { margin:1px 0; }
+.log-panel .log-ok { color:#2ecc71; }
+.log-panel .log-err { color:#e74c3c; }
+.log-panel .log-warn { color:#f39c12; }
 
-    .chapter-timeline {
-      position: relative;
-      padding-left: 22px;
-    }
-    .chapter-timeline::before {
-      content: '';
-      position: absolute;
-      left: 5px;
-      top: 6px;
-      bottom: 6px;
-      width: 2px;
-      background: linear-gradient(180deg, var(--gold), var(--cream-border));
-      border-radius: 1px;
-    }
-    .chapter-item {
-      position: relative;
-      padding: 12px 0 12px 18px;
-      border-bottom: 1px solid var(--parchment-dark);
-    }
-    .chapter-item:last-child { border-bottom: none; }
-    .chapter-dot {
-      position: absolute;
-      left: -18px;
-      top: 16px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid var(--paper);
-    }
-    .chapter-item-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .chapter-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .chapter-name {
-      font-weight: 600;
-      color: var(--ink);
-      font-size: 0.92rem;
-    }
-    .chapter-author-badge {
-      font-size: 0.68rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      color: #fff;
-    }
-    .chapter-date {
-      font-size: 0.72rem;
-      color: var(--ink-muted);
-    }
-    .chapter-note {
-      margin-top: 8px;
-      font-size: 0.86rem;
-      color: var(--ink-light);
-      line-height: 1.7;
-      padding-left: 4px;
-      border-left: 2px solid var(--gold-pale);
-    }
-    .chapter-actions {
-      display: flex;
-      gap: 5px;
-      margin-top: 8px;
-    }
-    .chapter-btn {
-      padding: 3px 9px;
-      border: 1px solid var(--cream-border);
-      background: transparent;
-      color: var(--ink-muted);
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.7rem;
-      cursor: pointer;
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
-    .chapter-btn:hover { border-color: var(--ink); color: var(--ink); }
-    .chapter-btn.danger:hover { border-color: var(--member-1); color: var(--member-1); }
+.hint { font-size:11px; color:#556; margin-top:6px; line-height:1.5; }
+.warn-text { font-size:11px; color:#e74c3c; margin-top:4px; font-weight:bold; }
 
-    .no-chapters {
-      text-align: center;
-      padding: 28px;
-      color: var(--ink-muted);
-      font-style: italic;
-      font-size: 0.85rem;
-    }
+.data-table { width:100%; border-collapse:collapse; font-size:11px; }
+.data-table th {
+  background:#0f1b3d; color:#a8b2c1; padding:5px 8px;
+  text-align:left; border:1px solid #1e2a4a; font-weight:bold;
+  white-space:nowrap;
+}
+.data-table td {
+  padding:4px 8px; border:1px solid #1e2a4a; color:#c0c8d8;
+  white-space:nowrap;
+}
+.data-table tr:hover td { background:#141c30; }
 
-    .current-footer {
-      padding: 14px 22px;
-      border-top: 1px solid var(--parchment-dark);
-      text-align: right;
-    }
-    .btn-finish {
-      padding: 7px 20px;
-      background: var(--member-2);
-      color: #fff;
-      border: none;
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.82rem;
-      cursor: pointer;
-      border-radius: 2px;
-      transition: background 0.2s;
-    }
-    .btn-finish:hover { background: #3a7a5a; }
+.stat-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin:10px 0;
+}
+.stat-item {
+  background:#0d1b3e; border:1px solid #1e2a4a;
+  border-radius:6px; padding:10px 14px;
+  text-align:center;
+}
+.stat-label { font-size:11px; color:#a8b2c1; margin-bottom:4px; }
+.stat-value { font-size:22px; font-weight:bold; color:#fff; }
+.stat-value.gold { color:#f1c40f; }
+.stat-value.green { color:#2ecc71; }
+.stat-value.blue { color:#3498db; }
+.stat-value.red { color:#e74c3c; }
 
-    /* History */
-    .history-section { margin-bottom: 50px; }
-    .history-card {
-      background: #fff;
-      border: 1px solid var(--cream-border);
-      border-radius: 4px;
-      margin-bottom: 14px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px var(--shadow);
-    }
-    .history-header {
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .history-header:hover { background: var(--parchment-dark); }
-    .history-book-info h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.05rem;
-      color: var(--ink);
-      margin-bottom: 2px;
-    }
-    .history-book-meta {
-      font-size: 0.75rem;
-      color: var(--ink-muted);
-    }
-    .history-book-meta span { margin-right: 12px; }
-    .history-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .history-chapters-badge {
-      font-size: 0.68rem;
-      padding: 2px 9px;
-      background: var(--parchment-dark);
-      color: var(--gold);
-      border-radius: 10px;
-    }
-    .history-expand-icon {
-      width: 18px;
-      height: 18px;
-      color: var(--ink-muted);
-      transition: transform 0.3s;
-    }
-    .history-card.expanded .history-expand-icon { transform: rotate(180deg); }
-    .history-body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      background: var(--parchment);
-    }
-    .history-card.expanded .history-body { max-height: 3000px; }
-    .history-body-inner {
-      padding: 16px 18px 18px;
-      border-top: 1px solid var(--cream-border);
-    }
-    .history-note-item {
-      padding: 10px 0;
-      border-bottom: 1px dashed var(--cream-border);
-    }
-    .history-note-item:last-child { border-bottom: none; }
-    .history-note-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 5px;
-    }
-    .history-note-chapter {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--ink);
-    }
-    .history-note-date {
-      font-size: 0.7rem;
-      color: var(--ink-muted);
-    }
-    .history-note-content {
-      font-size: 0.82rem;
-      color: var(--ink-light);
-      line-height: 1.68;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 50px 18px;
-      color: var(--ink-muted);
-    }
-    .empty-icon { font-size: 38px; margin-bottom: 12px; opacity: 0.35; }
-    .empty-text { font-size: 0.88rem; letter-spacing: 2px; }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(44,31,14,0.5);
-      backdrop-filter: blur(2px);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal {
-      background: var(--parchment);
-      border: 1px solid var(--cream-border);
-      border-radius: 5px;
-      width: 100%;
-      max-width: 480px;
-      max-height: 82vh;
-      overflow-y: auto;
-      box-shadow: 0 18px 45px rgba(44,31,14,0.22);
-      transform: translateY(16px);
-      transition: transform 0.22s;
-    }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal-header {
-      padding: 20px 24px 14px;
-      border-bottom: 1px solid var(--cream-border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .modal-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.12rem;
-      color: var(--ink);
-    }
-    .modal-close {
-      width: 28px;
-      height: 28px;
-      border: 1px solid var(--cream-border);
-      background: transparent;
-      color: var(--ink-muted);
-      border-radius: 2px;
-      cursor: pointer;
-      font-size: 15px;
-      transition: all 0.2s;
-    }
-    .modal-close:hover { background: var(--ink); color: var(--parchment); }
-    .modal-body { padding: 18px 24px 20px; }
-    .form-row { margin-bottom: 16px; }
-    .form-row label {
-      display: block;
-      font-size: 0.7rem;
-      letter-spacing: 2px;
-      color: var(--gold);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .form-row input,
-    .form-row select,
-    .form-row textarea {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1px solid var(--cream-border);
-      background: #fff;
-      color: var(--ink);
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.88rem;
-      border-radius: 2px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-row input:focus,
-    .form-row select:focus,
-    .form-row textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 2px rgba(184,134,11,0.1);
-    }
-    .form-row textarea { resize: vertical; min-height: 90px; line-height: 1.65; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .rating-input { display: flex; gap: 4px; }
-    .rating-star {
-      font-size: 20px;
-      cursor: pointer;
-      color: var(--gold-pale);
-      transition: color 0.15s, transform 0.15s;
-    }
-    .rating-star:hover,
-    .rating-star.selected { color: var(--gold); transform: scale(1.1); }
-    .modal-footer {
-      display: flex;
-      gap: 9px;
-      justify-content: flex-end;
-      padding: 0 24px 22px;
-    }
-    .btn-cancel {
-      padding: 8px 18px;
-      border: 1px solid var(--cream-border);
-      background: transparent;
-      color: var(--ink-muted);
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.82rem;
-      cursor: pointer;
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
-    .btn-cancel:hover { border-color: var(--ink); color: var(--ink); }
-    .btn-save {
-      padding: 8px 22px;
-      background: var(--ink);
-      color: var(--parchment);
-      border: none;
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.82rem;
-      cursor: pointer;
-      border-radius: 2px;
-      transition: background 0.2s;
-    }
-    .btn-save:hover { background: var(--gold); }
-
-    .author-input-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .author-input-row input { flex: 1; }
-    .remember-check {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.72rem;
-      color: var(--ink-muted);
-      cursor: pointer;
-    }
-    .remember-check input { width: auto; cursor: pointer; }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 22px;
-      right: 22px;
-      background: var(--ink);
-      color: var(--parchment);
-      padding: 11px 20px;
-      border-radius: 3px;
-      font-size: 0.82rem;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 18px var(--shadow-deep);
-      transform: translateY(18px);
-      opacity: 0;
-      transition: all 0.25s;
-      z-index: 200;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-
-    @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
-      .current-header { flex-direction: column; }
-      .current-meta { text-align: left; margin-top: 8px; }
-    }
-
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: var(--parchment-dark); }
-    ::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
-  </style>
+.divider { border:none; border-top:1px solid #1e2a4a; margin:12px 0; }
+.section-title { font-size:12px; font-weight:bold; color:#a8b2c1; margin-bottom:8px; margin-top:4px; }
+</style>
 </head>
 <body>
 
-<header>
-  <div class="header-ornament">✦ 共读时光 ✦</div>
-  <h1>书香 <span>读书会</span></h1>
-  <p class="header-sub">一群人 · 一本书 · 每一章的心得</p>
-</header>
-
-<div class="container">
-  <!-- Member Bar -->
-  <div class="member-bar">
-    <span class="member-bar-label">参与者</span>
-    <button class="member-tag active" data-member="all" onclick="selectMember('all', this)">
-      <span class="member-dot" style="background:var(--gold)"></span>
-      全部
-    </button>
+<div class="header">
+  <h1><span>&#9889;</span> Lunia GM 工具</h1>
+  <div class="status-area">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">未连接</span>
   </div>
-
-  <!-- Stats -->
-  <div class="stats-bar">
-    <div class="stat-item">
-      <div class="stat-num" id="stat-reading">0</div>
-      <div class="stat-label">正在阅读</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="stat-finished">0</div>
-      <div class="stat-label">已读完</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="stat-chapters">0</div>
-      <div class="stat-label">心得笔记</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num" id="stat-members">0</div>
-      <div class="stat-label">参与人数</div>
-    </div>
-  </div>
-
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="current" onclick="switchTab('current', this)">当前阅读</button>
-      <button class="tab-btn" data-tab="history" onclick="switchTab('history', this)">历史记录</button>
-    </div>
-    <button class="btn-add" onclick="openNewBookModal()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      开始新书
-    </button>
-  </div>
-
-  <!-- Sections -->
-  <div id="current-section" class="current-section"></div>
-  <div id="history-section" class="history-section" style="display:none;"></div>
 </div>
 
-<!-- New Book Modal -->
-<div class="modal-overlay" id="new-book-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">开始阅读新书</div>
-      <button class="modal-close" onclick="closeModal('new-book-modal')">×</button>
+<div class="tabs">
+  <button class="tab-btn" id="tab-conn" onclick="switchTab('conn',this)">&#9881; 连接设置</button>
+  <button class="tab-btn active" id="tab-cash" onclick="switchTab('cash',this)">&#128176; 商店点数</button>
+  <button class="tab-btn" id="tab-char" onclick="switchTab('char',this)">&#9876; 角色修改</button>
+  <button class="tab-btn" id="tab-rebirth" onclick="switchTab('rebirth',this)">&#9854; 转生修改</button>
+  <button class="tab-btn" id="tab-shop" onclick="switchTab('shop',this)">&#128722; 商城物品</button>
+  <button class="tab-btn" id="tab-send" onclick="switchTab('send',this)">&#127873; 物品发送</button>
+  <button class="tab-btn" id="tab-sql" onclick="switchTab('sql',this)">&#128187; SQL 执行</button>
+</div>
+
+<div class="content">
+
+<!-- ====== 连接设置 ====== -->
+<div class="tab-panel" id="panel-conn">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128451;</span>数据库配置</div>
+    <div class="form-row">
+      <span class="form-label">服务器:</span>
+      <input class="form-input" id="cfgServer" value="127.0.0.1">
     </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <label>书名</label>
-        <input type="text" id="nb-title" placeholder="书名" />
-      </div>
-      <div class="form-row">
-        <label>作者</label>
-        <input type="text" id="nb-author" placeholder="作者" />
-      </div>
-      <div class="form-grid">
-        <div class="form-row">
-          <label>开始日期</label>
-          <input type="date" id="nb-start" />
-        </div>
-        <div class="form-row">
-          <label>分类</label>
-          <select id="nb-category">
-            <option value="novel">小说</option>
-            <option value="history">历史</option>
-            <option value="science">科学</option>
-            <option value="philosophy">哲学</option>
-            <option value="tech">技术</option>
-            <option value="other">其他</option>
-          </select>
-        </div>
-      </div>
+    <div class="form-row">
+      <span class="form-label">用户名:</span>
+      <input class="form-input" id="cfgUser" value="sa">
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('new-book-modal')">取消</button>
-      <button class="btn-save" onclick="saveNewBook()">开始阅读</button>
+    <div class="form-row">
+      <span class="form-label">密码:</span>
+      <input class="form-input" id="cfgPass" type="password" value="123123">
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="testConn()">&#128268; 测试连接</button>
+      <button class="btn btn-primary" onclick="saveConn()">&#128190; 保存配置</button>
+    </div>
+    <div class="result-box info" id="connResult" style="margin-top:10px">
+      点击「测试连接」验证数据库是否可连通
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128214;</span>使用说明</div>
+    <div class="hint">
+      1. 此工具使用 IE 浏览器内置 ActiveX 直接连接 SQL Server，<b>必须用 IE 打开</b><br>
+      2. 首次打开 IE 可能提示「允许 ActiveX 控件」，点击<b>允许</b>即可<br>
+      3. 数据库 <b>Billing</b>（商店点数）· <b>v3_character</b>（角色/转生数据）<br>
+      4. 所有修改操作均有确认提示，操作后自动刷新显示最新数值
     </div>
   </div>
 </div>
 
-<!-- Chapter Modal -->
-<div class="modal-overlay" id="chapter-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">添加章节心得</div>
-      <button class="modal-close" onclick="closeModal('chapter-modal')">×</button>
+<!-- ====== 商店点数 ====== -->
+<div class="tab-panel active" id="panel-cash">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128176;</span>商店点数管理 — Billing.dbo.CashPoints</div>
+
+    <!-- 查询区 -->
+    <div class="section-title">&#128269; 查询账号</div>
+    <div class="form-row">
+      <span class="form-label">账号 UserID:</span>
+      <input class="form-input" id="cashUid" placeholder="输入账号 UserID，回车查询" onkeydown="if(event.keyCode===13)queryCash()">
+      <button class="btn btn-info" onclick="queryCash()">查询</button>
     </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <label>你的名字</label>
-        <div class="author-input-row">
-          <input type="text" id="ch-author" placeholder="输入你的名字或昵称" />
-          <label class="remember-check">
-            <input type="checkbox" id="ch-remember" checked />
-            记住
-          </label>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="form-row">
-          <label>章节名称/编号</label>
-          <input type="text" id="ch-chapter" placeholder="如：第一章 或 第3章" />
-        </div>
-        <div class="form-row">
-          <label>阅读日期</label>
-          <input type="date" id="ch-date" />
-        </div>
-      </div>
-      <div class="form-row">
-        <label>心得体会</label>
-        <textarea id="ch-content" placeholder="写下你的读书感悟、精彩摘录、思考收获……"></textarea>
+
+    <div id="cashStatGrid" class="stat-grid" style="display:none">
+      <div class="stat-item" style="grid-column:1/-1">
+        <div class="stat-label">商店点数 (nCash)</div>
+        <div class="stat-value gold" id="cashValue">-</div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('chapter-modal')">取消</button>
-      <button class="btn-save" onclick="saveChapter()">保存</button>
+    <div class="result-box" id="cashResult">输入账号 UID 后点击查询</div>
+
+    <hr class="divider">
+
+    <!-- 操作区 -->
+    <div class="section-title">&#9998; 点数操作（对上方查询的账号生效）</div>
+    <div class="form-row">
+      <span class="form-label">数量:</span>
+      <input class="form-input" id="cashOpAmount" placeholder="输入数量" style="max-width:160px" onkeydown="if(event.keyCode===13)opCash('add')">
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="opCash('add')">&#10133; 发放点数</button>
+      <button class="btn btn-danger" onclick="opCash('sub')">&#10134; 扣除点数</button>
+      <button class="btn btn-warning" onclick="opCash('set')">&#128260; 直接设值</button>
+    </div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="quickCash(100)">+100</button>
+      <button class="quick-btn" onclick="quickCash(500)">+500</button>
+      <button class="quick-btn" onclick="quickCash(1000)">+1,000</button>
+      <button class="quick-btn" onclick="quickCash(5000)">+5,000</button>
+      <button class="quick-btn" onclick="quickCash(10000)">+10,000</button>
+      <button class="quick-btn" onclick="quickCash(50000)">+50,000</button>
+      <button class="quick-btn" onclick="quickCash(100000)">+100,000</button>
+    </div>
+    <div class="result-box" id="cashOpResult" style="margin-top:8px; display:none"></div>
+  </div>
+</div>
+
+<!-- ====== 角色修改 ====== -->
+<div class="tab-panel" id="panel-char">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#9876;</span>角色属性管理 — v3_character.dbo.Characters</div>
+
+    <!-- 查询区 -->
+    <div class="section-title">&#128269; 查询角色</div>
+    <div class="form-row">
+      <span class="form-label">角色名:</span>
+      <input class="form-input" id="charName" placeholder="输入角色名，回车查询" onkeydown="if(event.keyCode===13)queryChar()">
+      <button class="btn btn-info" onclick="queryChar()">查询</button>
+    </div>
+
+    <div id="charStatGrid" class="stat-grid" style="display:none">
+      <div class="stat-item">
+        <div class="stat-label">等级 stageLevel</div>
+        <div class="stat-value green" id="charLevel">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">格斗等级 pvplevel</div>
+        <div class="stat-value blue" id="charPvp">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">金币 gameMoney</div>
+        <div class="stat-value gold" id="charMoney">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">技能点 skillPoint</div>
+        <div class="stat-value red" id="charSkill">-</div>
+      </div>
+    </div>
+    <div class="result-box" id="charResult">输入角色名后点击查询</div>
+
+    <hr class="divider">
+
+    <!-- 修改区 -->
+    <div class="section-title">&#9998; 修改属性（角色名自动同步自查询框）</div>
+    <div class="form-row">
+      <span class="form-label">等级:</span>
+      <input class="form-input" id="charEditLevel" placeholder="最大 99" style="max-width:140px" onkeydown="if(event.keyCode===13)setCharField('stageLevel','charEditLevel')">
+      <button class="btn btn-success" onclick="setCharField('stageLevel','charEditLevel')">修改</button>
+    </div>
+    <div class="warn-text">&#9888; stageLevel 最大 99，超过进游戏报错！</div>
+
+    <div class="form-row" style="margin-top:10px">
+      <span class="form-label">格斗等级:</span>
+      <input class="form-input" id="charEditPvp" placeholder="最大 4" style="max-width:140px" onkeydown="if(event.keyCode===13)setCharField('pvplevel','charEditPvp')">
+      <button class="btn btn-success" onclick="setCharField('pvplevel','charEditPvp')">修改</button>
+    </div>
+
+    <div class="form-row" style="margin-top:10px">
+      <span class="form-label">金币:</span>
+      <input class="form-input" id="charEditMoney" placeholder="999 = 9银99铜" style="max-width:140px" onkeydown="if(event.keyCode===13)setCharField('gameMoney','charEditMoney')">
+      <button class="btn btn-success" onclick="setCharField('gameMoney','charEditMoney')">修改</button>
+    </div>
+    <div class="hint">金币单位从铜开始，设值 999 就是 9银99铜</div>
+
+    <div class="form-row" style="margin-top:10px">
+      <span class="form-label">技能点:</span>
+      <input class="form-input" id="charEditSkill" placeholder="不要大于 999" style="max-width:140px" onkeydown="if(event.keyCode===13)setCharField('skillPoint','charEditSkill')">
+      <button class="btn btn-success" onclick="setCharField('skillPoint','charEditSkill')">修改</button>
+    </div>
+    <div class="warn-text">&#9888; skillPoint 不要大于 999！</div>
+
+    <div class="result-box" id="charEditResult" style="margin-top:10px; display:none"></div>
+  </div>
+</div>
+
+<!-- ====== 转生修改 ====== -->
+<div class="tab-panel" id="panel-rebirth">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#9854;</span>转生数据管理 — v3_character.dbo.CharacterRebirth</div>
+
+    <!-- 查询区 -->
+    <div class="section-title">&#128269; 查询转生信息</div>
+    <div class="form-row">
+      <span class="form-label">角色名:</span>
+      <input class="form-input" id="rebirthName" placeholder="输入角色名，回车查询" onkeydown="if(event.keyCode===13)queryRebirth()">
+      <button class="btn btn-info" onclick="queryRebirth()">查询</button>
+    </div>
+
+    <div id="rebirthStatGrid" class="stat-grid" style="display:none">
+      <div class="stat-item">
+        <div class="stat-label">转生次数 rebirthCount</div>
+        <div class="stat-value green" id="rebirthCount">-</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">累计等级 storedlevel</div>
+        <div class="stat-value blue" id="rebirthStored">-</div>
+      </div>
+      <div class="stat-item" style="grid-column:1/-1">
+        <div class="stat-label">转生技能点 SkillsPoint</div>
+        <div class="stat-value red" id="rebirthSkillVal">-</div>
+      </div>
+    </div>
+    <div class="result-box" id="rebirthResult">输入角色名后点击查询</div>
+
+    <hr class="divider">
+
+    <!-- 修改区 -->
+    <div class="section-title">&#9998; 修改转生属性（角色名自动同步自查询框）</div>
+
+    <div class="form-row">
+      <span class="form-label">转生次数:</span>
+      <input class="form-input" id="rebirthEditCount" placeholder="最大 99" style="max-width:140px" onkeydown="if(event.keyCode===13)setRebirthField('rebirthCount','rebirthEditCount')">
+      <button class="btn btn-success" onclick="setRebirthField('rebirthCount','rebirthEditCount')">修改</button>
+    </div>
+    <div class="warn-text">&#9888; rebirthCount 最大 99，超过进游戏报错！</div>
+
+    <div class="form-row" style="margin-top:10px">
+      <span class="form-label">累计等级:</span>
+      <input class="form-input" id="rebirthEditStored" placeholder="最大 9999" style="max-width:140px" onkeydown="if(event.keyCode===13)setRebirthField('storedlevel','rebirthEditStored')">
+      <button class="btn btn-success" onclick="setRebirthField('storedlevel','rebirthEditStored')">修改</button>
+    </div>
+    <div class="hint">99×99 = 9801，最大可写 9999，不能再高！</div>
+
+    <div class="form-row" style="margin-top:10px">
+      <span class="form-label">转生技能点:</span>
+      <input class="form-input" id="rebirthEditSkill" placeholder="建议填 0" style="max-width:140px" onkeydown="if(event.keyCode===13)setRebirthField('SkillsPoint','rebirthEditSkill')">
+      <button class="btn btn-success" onclick="setRebirthField('SkillsPoint','rebirthEditSkill')">修改</button>
+    </div>
+    <div class="hint">手动改这里，技能点直接填 0 就行</div>
+
+    <div class="result-box" id="rebirthEditResult" style="margin-top:10px; display:none"></div>
+  </div>
+</div>
+
+<!-- ====== 商城物品 ====== -->
+<div class="tab-panel" id="panel-shop">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128722;</span>商城物品管理 — d-shop.dbo.tblProduct</div>
+
+    <!-- 输入区 -->
+    <div class="section-title">&#9998; 物品信息（新增 / 修改）</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;margin-bottom:8px">
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">商城ID (oidProduct)</div>
+        <input class="form-input" id="shpOid" placeholder="新增留空自动生成" style="max-width:150px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">商城GUID (strGUID)</div>
+        <input class="form-input" id="shpGuid" placeholder="32位GUID" style="max-width:280px">
+        <button class="btn btn-info" style="margin-left:4px;font-size:11px;padding:5px 10px" onclick="genGuid()">&#127922; 随机生成</button>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">商城分类 (nCategory1)</div>
+        <input class="form-input" id="shpCat1" value="90" style="max-width:80px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">商城分类2 (nCategory2)</div>
+        <input class="form-input" id="shpCat2" value="1" style="max-width:80px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">产品状态 (nProductStatus)</div>
+        <input class="form-input" id="shpStatus" value="25" style="max-width:80px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">物品名称 (strProductName)</div>
+        <input class="form-input" id="shpName" placeholder="物品名称" style="max-width:200px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">物品代码 (strProductCode)</div>
+        <input class="form-input" id="shpCode" placeholder="物品代码" style="max-width:120px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">物品数量 (nProductExpire)</div>
+        <input class="form-input" id="shpExpire" value="1" style="max-width:80px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">nProductEA</div>
+        <input class="form-input" id="shpEA" value="1" style="max-width:80px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">描述 (strDescription)</div>
+        <input class="form-input" id="shpDesc" placeholder="可选" style="max-width:200px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">售价 (nProductPrice)</div>
+        <input class="form-input" id="shpPrice" value="0" style="max-width:100px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">优惠价 (nSalePrice)</div>
+        <input class="form-input" id="shpSalePrice" value="0" style="max-width:100px">
+      </div>
+      <div>
+        <div style="font-size:11px;color:#a8b2c1;margin-bottom:3px">VIP价 (nSalePriceVIP)</div>
+        <input class="form-input" id="shpVipPrice" value="0" style="max-width:100px">
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="shopAdd()">&#10133; 增加物品</button>
+      <button class="btn btn-warning" onclick="shopUpdate()">&#9998; 修改物品</button>
+      <button class="btn btn-danger"  onclick="shopDelete()">&#128465; 删除选中物品</button>
+      <button class="btn btn-info"    onclick="shopLoad()">&#128260; 读取商城</button>
+      <button class="btn btn-primary" onclick="shopClear()">&#10006; 清空输入</button>
+    </div>
+    <div class="result-box" id="shopOpResult" style="margin-top:8px">点击「读取商城」加载所有物品</div>
+  </div>
+
+  <!-- 列表区 -->
+  <div class="card" style="padding:10px">
+    <div class="card-title"><span class="icon">&#128202;</span>商城物品列表（点击行填入上方表单）</div>
+    <div style="overflow-x:auto;overflow-y:auto;max-height:420px">
+      <table class="data-table" id="shopTable">
+        <thead>
+          <tr>
+            <th style="min-width:60px">商城ID</th>
+            <th style="min-width:290px">商城GUID</th>
+            <th style="min-width:70px">分类1</th>
+            <th style="min-width:70px">分类2</th>
+            <th style="min-width:70px">状态</th>
+            <th style="min-width:180px">物品名称</th>
+            <th style="min-width:100px">物品代码</th>
+            <th style="min-width:70px">数量</th>
+            <th style="min-width:60px">EA</th>
+            <th style="min-width:80px">售价</th>
+            <th style="min-width:80px">优惠价</th>
+            <th style="min-width:70px">VIP价</th>
+          </tr>
+        </thead>
+        <tbody id="shopTableBody">
+          <tr><td colspan="12" style="text-align:center;color:#556;padding:20px">尚未加载，请点击「读取商城」</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:11px;color:#556;margin-top:6px" id="shopCount"></div>
+  </div>
+</div>
+
+<!-- ====== 物品发送 ====== -->
+<div class="tab-panel" id="panel-send">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#127873;</span>物品发送 — 通过角色名发送物品</div>
+
+    <!-- 角色查询 -->
+    <div class="section-title">&#128269; 目标角色</div>
+    <div class="form-row">
+      <span class="form-label">角色帐号:</span>
+      <input class="form-input" id="sendCharName" placeholder="输入角色名，回车查询" style="max-width:200px" onkeydown="if(event.keyCode===13)sendQueryChar()">
+      <select class="form-input" id="sendCharTable" style="max-width:160px">
+        <option value="">角色表</option>
+      </select>
+      <button class="btn btn-info" onclick="sendQueryChar()">读取角色信息</button>
+    </div>
+    <div class="result-box info" id="sendCharResult" style="display:none"></div>
+
+    <hr class="divider">
+
+    <!-- 5行物品输入 -->
+    <div class="section-title">&#128230; 物品信息（最多5件）</div>
+    <div style="display:flex;gap:6px;margin-bottom:5px;padding:0 4px">
+      <div style="min-width:110px;font-size:11px;color:#a8b2c1;font-weight:bold;text-align:right;padding-right:8px"></div>
+      <div style="flex:2;font-size:11px;color:#a8b2c1;font-weight:bold">物品代码</div>
+      <div style="flex:1;font-size:11px;color:#a8b2c1;font-weight:bold">物品数量</div>
+      <div style="flex:1;font-size:11px;color:#a8b2c1;font-weight:bold">物品属性</div>
+    </div>
+    <div class="form-row">
+      <span class="form-label">物品代码1</span>
+      <input class="form-input" id="sendCode1" placeholder="物品代码" style="flex:2">
+      <input class="form-input" id="sendQty1"  placeholder="物品数量" value="1" style="flex:1;max-width:none">
+      <input class="form-input" id="sendAttr1" placeholder="物品属性" value="0" style="flex:1;max-width:none">
+    </div>
+    <div class="form-row">
+      <span class="form-label">物品代码2</span>
+      <input class="form-input" id="sendCode2" placeholder="物品代码" style="flex:2">
+      <input class="form-input" id="sendQty2"  placeholder="物品数量" value="1" style="flex:1;max-width:none">
+      <input class="form-input" id="sendAttr2" placeholder="物品属性" value="0" style="flex:1;max-width:none">
+    </div>
+    <div class="form-row">
+      <span class="form-label">物品代码3</span>
+      <input class="form-input" id="sendCode3" placeholder="物品代码" style="flex:2">
+      <input class="form-input" id="sendQty3"  placeholder="物品数量" value="1" style="flex:1;max-width:none">
+      <input class="form-input" id="sendAttr3" placeholder="物品属性" value="0" style="flex:1;max-width:none">
+    </div>
+    <div class="form-row">
+      <span class="form-label">物品代码4</span>
+      <input class="form-input" id="sendCode4" placeholder="物品代码" style="flex:2">
+      <input class="form-input" id="sendQty4"  placeholder="物品数量" value="1" style="flex:1;max-width:none">
+      <input class="form-input" id="sendAttr4" placeholder="物品属性" value="0" style="flex:1;max-width:none">
+    </div>
+    <div class="form-row">
+      <span class="form-label">物品代码5</span>
+      <input class="form-input" id="sendCode5" placeholder="物品代码" style="flex:2">
+      <input class="form-input" id="sendQty5"  placeholder="物品数量" value="1" style="flex:1;max-width:none">
+      <input class="form-input" id="sendAttr5" placeholder="物品属性" value="0" style="flex:1;max-width:none">
+    </div>
+
+    <div class="btn-group" style="justify-content:center;margin-top:12px">
+      <button class="btn btn-success" style="padding:9px 40px;font-size:13px" onclick="sendItems()">&#9993; 发 送</button>
+      <button class="btn btn-primary" style="padding:9px 20px;font-size:13px" onclick="sendClear()">&#10006; 清空</button>
+    </div>
+    <div class="result-box" id="sendResult" style="margin-top:10px;display:none"></div>
+    <div class="hint" style="margin-top:8px">
+      &#9888; 物品代码为游戏内物品 ID，留空的行自动跳过；物品属性填 0 即普通属性
     </div>
   </div>
 </div>
 
-<!-- Edit Chapter Modal -->
-<div class="modal-overlay" id="edit-chapter-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">编辑章节心得</div>
-      <button class="modal-close" onclick="closeModal('edit-chapter-modal')">×</button>
+<!-- ====== SQL 执行 ====== -->
+<div class="tab-panel" id="panel-sql">
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128221;</span>自定义 SQL 执行</div>
+    <div class="form-row">
+      <span class="form-label">数据库:</span>
+      <select class="form-input" id="sqlDatabase" style="max-width:240px">
+        <option value="Billing">Billing（商店点数）</option>
+        <option value="v3_character">v3_character（角色/转生）</option>
+        <option value="d-shop">d-shop（商城物品）</option>
+        <option value="master">master</option>
+      </select>
     </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <label>作者</label>
-        <input type="text" id="ech-author" />
-      </div>
-      <div class="form-grid">
-        <div class="form-row">
-          <label>章节名称/编号</label>
-          <input type="text" id="ech-chapter" />
-        </div>
-        <div class="form-row">
-          <label>阅读日期</label>
-          <input type="date" id="ech-date" />
-        </div>
-      </div>
-      <div class="form-row">
-        <label>心得体会</label>
-        <textarea id="ech-content"></textarea>
-      </div>
+    <textarea class="sql-area" id="sqlInput" style="margin-top:6px">SELECT TOP 20 uid, nCash FROM dbo.CashPoints ORDER BY nCash DESC</textarea>
+    <div class="btn-group">
+      <button class="btn btn-info" onclick="execSQL(false)">&#9654; 执行 SELECT</button>
+      <button class="btn btn-warning" onclick="execSQL(true)">&#9997; 执行 UPDATE/INSERT</button>
+      <button class="btn btn-primary" onclick="clearSQL()">&#128465; 清空结果</button>
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('edit-chapter-modal')">取消</button>
-      <button class="btn-save" onclick="updateChapter()">保存修改</button>
+    <div id="sqlStatus" style="margin-top:6px; font-size:12px; color:#556;"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128202;</span>查询结果</div>
+    <div class="sql-result-wrap" id="sqlResultWrap">
+      <div style="padding:10px; color:#556; font-size:12px;">等待执行...</div>
     </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">&#128218;</span>常用 SQL 参考（点击复制）</div>
+    <div id="sqlSamples"></div>
   </div>
 </div>
 
-<!-- Finish Modal -->
-<div class="modal-overlay" id="finish-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">完成阅读</div>
-      <button class="modal-close" onclick="closeModal('finish-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <p style="margin-bottom:16px;color:var(--ink-muted);font-size:0.85rem;">
-        恭喜读完这本书！请为整体阅读体验评分。
-      </p>
-      <div class="form-row">
-        <label>评分</label>
-        <div class="rating-input" id="finish-rating">
-          <span class="rating-star" data-v="1" onclick="setFinishRating(1)">★</span>
-          <span class="rating-star" data-v="2" onclick="setFinishRating(2)">★</span>
-          <span class="rating-star" data-v="3" onclick="setFinishRating(3)">★</span>
-          <span class="rating-star" data-v="4" onclick="setFinishRating(4)">★</span>
-          <span class="rating-star" data-v="5" onclick="setFinishRating(5)">★</span>
-        </div>
-      </div>
-      <div class="form-row">
-        <label>总结（可选）</label>
-        <textarea id="finish-summary" placeholder="整体感受、推荐理由、印象深刻的点……"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('finish-modal')">取消</button>
-      <button class="btn-save" style="background:var(--member-2)" onclick="finishBook()">完成阅读</button>
-    </div>
-  </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<!-- 日志面板 -->
+<div class="log-panel" id="logPanel"></div>
 
 <script>
-  // ── Data ──
-  const STORAGE_KEY = 'reading_club_cycles_v2';
-  const AUTHOR_KEY = 'reading_club_last_author';
-  let cycles = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  let currentCycleId = null;
-  let editingChapterId = null;
-  let finishRating = 0;
-  let currentMemberFilter = 'all';
+// ========== 配置 ==========
+var CFG = { server:"127.0.0.1", username:"sa", password:"123123" };
 
-  // Seed data
-  if (cycles.length === 0) {
-    cycles = [
-      {
-        id: 1,
-        title: '百年孤独',
-        author: '加西亚·马尔克斯',
-        category: 'novel',
-        startDate: '2024-03-01',
-        endDate: '2024-04-15',
-        rating: 5,
-        summary: '魔幻现实主义的巅峰，孤独是贯穿始终的主题。',
-        notes: [
-          { id: 101, chapter: '第一章', date: '2024-03-05', member: '小龙', content: '开篇太经典了：\'许多年之后，面对行刑队……\' 布恩迪亚家族的故事由此展开。' },
-          { id: 102, chapter: '第二章', date: '2024-03-12', member: '小龙', content: '吉普赛人带来的冰块和磁铁，让马孔多第一次接触外界。' },
-          { id: 103, chapter: '第一章', date: '2024-03-08', member: '阿明', content: '何塞·阿尔卡蒂奥·布恩迪亚是个有趣的梦想家，他那种对新事物的痴迷让我想起很多创业者。' },
-          { id: 104, chapter: '第三章', date: '2024-03-20', member: '小芳', content: '乌尔苏拉太坚强了，她是整个家族的定海神针。没有她，这个家早就散了。' }
-        ]
-      },
-      {
-        id: 2,
-        title: '人类简史',
-        author: '尤瓦尔·赫拉利',
-        category: 'history',
-        startDate: '2025-04-01',
-        endDate: null,
-        rating: 0,
-        summary: '',
-        notes: [
-          { id: 201, chapter: '第一章：认知革命', date: '2025-04-05', member: '小龙', content: '智人能统治地球靠的是虚构故事的能力——国家、宗教、公司都是想象出来的。震撼的观点！' },
-          { id: 202, chapter: '第二章：农业革命', date: '2025-04-12', member: '阿明', content: '小麦驯化了人类，而非人类驯化小麦。这个角度从来没想过，赫拉利确实会讲故事。' },
-          { id: 203, chapter: '第一章：认知革命', date: '2025-04-08', member: '小芳', content: '\"虚构故事\"这个概念让我想到品牌、IP，本质上都是在讲故事。商业世界里这个能力太重要了。' }
-        ]
-      }
-    ];
-    save();
+// ========== 工具 ==========
+function gid(id) { return document.getElementById(id); }
+
+function log(msg, type) {
+  var p = gid("logPanel");
+  var cls = type==="ok" ? "log-ok" : type==="err" ? "log-err" : type==="warn" ? "log-warn" : "";
+  var t = new Date().toTimeString().substr(0,8);
+  p.innerHTML += '<div class="log-line ' + cls + '">[' + t + '] ' + msg + '</div>';
+  p.scrollTop = p.scrollHeight;
+}
+
+function setBox(id, msg, type, forceShow) {
+  var el = gid(id);
+  if (forceShow) el.style.display = "";
+  el.className = "result-box " + (type||"");
+  el.innerHTML = msg;
+}
+
+function setStatus(ok, text) {
+  gid("statusDot").className = "status-dot" + (ok ? " ok" : "");
+  gid("statusText").innerText = text || (ok ? "已连接" : "未连接");
+}
+
+function commas(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function esc(s) { return String(s).replace(/'/g, "''"); }
+
+function switchTab(name, btn) {
+  var panels = document.getElementsByClassName("tab-panel");
+  for (var i=0; i<panels.length; i++) panels[i].className = "tab-panel";
+  gid("panel-"+name).className = "tab-panel active";
+  var btns = document.getElementsByClassName("tab-btn");
+  for (var i=0; i<btns.length; i++) btns[i].className = "tab-btn";
+  if (btn) btn.className = "tab-btn active";
+}
+
+// ========== 连接 ==========
+function getConn(db) {
+  var conn = new ActiveXObject("ADODB.Connection");
+  conn.ConnectionTimeout = 8;
+  conn.CommandTimeout = 15;
+  conn.Open("Provider=SQLOLEDB;Data Source=" + CFG.server +
+    ";Initial Catalog=" + db +
+    ";User ID=" + CFG.username +
+    ";Password=" + CFG.password + ";");
+  return conn;
+}
+
+function saveConn() {
+  CFG.server   = gid("cfgServer").value;
+  CFG.username = gid("cfgUser").value;
+  CFG.password = gid("cfgPass").value;
+  log("配置已保存", "ok");
+  setBox("connResult", "&#10003; 配置已保存！点击「测试连接」验证。", "info");
+}
+
+function testConn() {
+  saveConn();
+  log("正在测试连接...");
+  setBox("connResult", "&#8987; 正在连接...", "info");
+  try {
+    var c1 = getConn("Billing");
+    c1.Execute("SELECT 1"); c1.Close();
+    var c2 = getConn("v3_character");
+    c2.Execute("SELECT 1"); c2.Close();
+    setStatus(true, "已连接");
+    setBox("connResult", "&#10003; 连接成功！Billing ✓  v3_character ✓", "success");
+    log("连接成功", "ok");
+  } catch(e) {
+    setStatus(false, "连接失败");
+    setBox("connResult", "&#10007; 连接失败: " + e.message, "error");
+    log("连接失败: " + e.message, "err");
   }
+}
 
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cycles));
-    updateStats();
-    render();
-  }
+// ========== 商店点数 ==========
+var _cashUid = "";
 
-  // ── Member Colors ──
-  const memberColors = [
-    '#8b3a1a', '#2a5a4a', '#4a3a6a', '#1a4a6a', '#6a4a1a',
-    '#3a6a5a', '#5a2a4a', '#2a4a6a', '#6a3a2a', '#4a6a3a'
-  ];
-  const memberColorMap = {};
-
-  function getMemberColor(name) {
-    if (!memberColorMap[name]) {
-      const used = Object.values(memberColorMap);
-      const available = memberColors.filter(c => !used.includes(c));
-      memberColorMap[name] = available.length > 0
-        ? available[0]
-        : memberColors[Object.keys(memberColorMap).length % memberColors.length];
-    }
-    return memberColorMap[name];
-  }
-
-  function getAllMembers() {
-    const members = new Set();
-    cycles.forEach(c => c.notes.forEach(n => members.add(n.member)));
-    return Array.from(members);
-  }
-
-  // ── Stats ──
-  function updateStats() {
-    const active = cycles.filter(c => !c.endDate);
-    const finished = cycles.filter(c => c.endDate);
-    const totalNotes = cycles.reduce((s, c) => s + c.notes.length, 0);
-    const members = getAllMembers();
-
-    document.getElementById('stat-reading').textContent = active.length;
-    document.getElementById('stat-finished').textContent = finished.length;
-    document.getElementById('stat-chapters').textContent = totalNotes;
-    document.getElementById('stat-members').textContent = members.length;
-
-    // Update member bar
-    const bar = document.querySelector('.member-bar');
-    bar.innerHTML = `
-      <span class="member-bar-label">参与者</span>
-      <button class="member-tag ${currentMemberFilter === 'all' ? 'active' : ''}" data-member="all" onclick="selectMember('all', this)">
-        <span class="member-dot" style="background:var(--gold)"></span>
-        全部
-      </button>
-      ${members.map(m => `
-        <button class="member-tag ${currentMemberFilter === m ? 'active' : ''}" data-member="${escAttr(m)}" onclick="selectMember('${escAttr(m)}', this)">
-          <span class="member-dot" style="background:${getMemberColor(m)}"></span>
-          ${escHtml(m)}
-        </button>
-      `).join('')}
-    `;
-  }
-
-  // ── Member Filter ──
-  function selectMember(member, btn) {
-    currentMemberFilter = member;
-    document.querySelectorAll('.member-tag').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    render();
-  }
-
-  // ── Render ──
-  function render() {
-    renderCurrent();
-    renderHistory();
-  }
-
-  const categoryNames = {
-    novel: '小说', history: '历史', science: '科学',
-    philosophy: '哲学', tech: '技术', other: '其他'
-  };
-
-  function filterNotes(notes) {
-    if (currentMemberFilter === 'all') return notes;
-    return notes.filter(n => n.member === currentMemberFilter);
-  }
-
-  function renderCurrent() {
-    const section = document.getElementById('current-section');
-    const active = cycles.filter(c => !c.endDate);
-
-    if (active.length === 0) {
-      section.innerHTML = `
-        <div class="section-title">当前阅读</div>
-        <div class="empty-state">
-          <div class="empty-icon">📖</div>
-          <div class="empty-text">还没有正在阅读的书</div>
-        </div>
-      `;
-      return;
-    }
-
-    section.innerHTML = active.map(cycle => {
-      const filtered = filterNotes(cycle.notes);
-      const sorted = [...filtered].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-      return `
-        <div class="section-title">当前阅读 · ${categoryNames[cycle.category] || '其他'}</div>
-        <div class="current-card">
-          <div class="current-header">
-            <div>
-              <div class="current-book-title">${escHtml(cycle.title)}</div>
-              <div class="current-book-author">${escHtml(cycle.author || '佚名')}</div>
-            </div>
-            <div class="current-meta">
-              <div>开始于 <strong>${formatDate(cycle.startDate)}</strong></div>
-              <div>${filtered.length} 条心得</div>
-            </div>
-          </div>
-          <div class="current-body">
-            <div class="chapter-list-header">
-              <span class="chapter-list-title">章节时间线</span>
-              <button class="btn-add-chapter" onclick="openChapterModal(${cycle.id})">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                添加心得
-              </button>
-            </div>
-            ${sorted.length === 0 ? `<div class="no-chapters">${currentMemberFilter === 'all' ? '还没有章节记录' : '该成员还没有添加心得'}</div>` : `
-              <div class="chapter-timeline">
-                ${sorted.map(n => `
-                  <div class="chapter-item">
-                    <div class="chapter-dot" style="background:${getMemberColor(n.member)}"></div>
-                    <div class="chapter-item-header">
-                        <div class="chapter-info">
-                          <span class="chapter-name">${escHtml(n.chapter)}</span>
-                          <span class="chapter-author-badge" style="background:${getMemberColor(n.member)}">${escHtml(n.member)}</span>
-                        </div>
-                        <span class="chapter-date">${formatDate(n.date)}</span>
-                    </div>
-                    <div class="chapter-note">${escHtml(n.content)}</div>
-                    ${n.member === localStorage.getItem(AUTHOR_KEY) || currentMemberFilter === 'all' ? `
-                      <div class="chapter-actions">
-                        <button class="chapter-btn" onclick="editChapter(${cycle.id}, ${n.id})">编辑</button>
-                        <button class="chapter-btn danger" onclick="deleteChapter(${cycle.id}, ${n.id})">删除</button>
-                      </div>
-                    ` : ''}
-                  </div>
-                `).join('')}
-              </div>
-            `}
-          </div>
-          <div class="current-footer">
-            <button class="btn-finish" onclick="openFinishModal(${cycle.id})">完成阅读</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function renderHistory() {
-    const section = document.getElementById('history-section');
-    const finished = cycles.filter(c => c.endDate).sort((a, b) => (b.endDate || '').localeCompare(a.endDate || ''));
-
-    if (finished.length === 0) {
-      section.innerHTML = `
-        <div class="section-title">历史记录</div>
-        <div class="empty-state">
-          <div class="empty-icon">📚</div>
-          <div class="empty-text">还没有读完的书</div>
-        </div>
-      `;
-      return;
-    }
-
-    section.innerHTML = `
-      <div class="section-title">历史记录 · ${finished.length} 本已读完</div>
-      ${finished.map(cycle => {
-        const filtered = filterNotes(cycle.notes);
-        const sorted = [...filtered].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-        return `
-          <div class="history-card" id="history-${cycle.id}">
-            <div class="history-header" onclick="toggleHistory(${cycle.id})">
-              <div class="history-book-info">
-                <h3>${escHtml(cycle.title)}</h3>
-                <div class="history-book-meta">
-                  <span>${escHtml(cycle.author || '佚名')}</span>
-                  <span>${formatDate(cycle.startDate)} ~ ${formatDate(cycle.endDate)}</span>
-                </div>
-              </div>
-              <div class="history-toggle">
-                <span class="history-chapters-badge">${filtered.length} 条</span>
-                <svg class="history-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-              </div>
-            </div>
-            <div class="history-body">
-              <div class="history-body-inner">
-                ${cycle.rating ? `<div style="font-size:0.8rem;color:var(--ink-muted);margin-bottom:14px;">评分：<strong style="color:var(--gold)">${'★'.repeat(cycle.rating)}${'☆'.repeat(5-cycle.rating)}</strong></div>` : ''}
-                ${cycle.summary ? `<div style="font-size:0.84rem;color:var(--ink-muted);margin-bottom:14px;font-style:italic;">${escHtml(cycle.summary)}</div>` : ''}
-                ${sorted.map(n => `
-                  <div class="history-note-item">
-                    <div class="history-note-header">
-                      <span class="history-note-chapter">${escHtml(n.chapter)}</span>
-                      <span class="chapter-author-badge" style="background:${getMemberColor(n.member)}">${escHtml(n.member)}</span>
-                      <span class="history-note-date">${formatDate(n.date)}</span>
-                    </div>
-                    <div class="history-note-content">${escHtml(n.content)}</div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('')}
-    `;
-  }
-
-  function toggleHistory(id) {
-    const card = document.getElementById('history-' + id);
-    card.classList.toggle('expanded');
-  }
-
-  // ── Tabs ──
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('current-section').style.display = tab === 'current' ? 'block' : 'none';
-    document.getElementById('history-section').style.display = tab === 'history' ? 'block' : 'none';
-  }
-
-  // ── Modal Actions ──
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-  }
-
-  function openNewBookModal() {
-    document.getElementById('nb-title').value = '';
-    document.getElementById('nb-author').value = '';
-    document.getElementById('nb-start').value = new Date().toISOString().slice(0, 10);
-    document.getElementById('nb-category').value = 'novel';
-    document.getElementById('new-book-modal').classList.add('open');
-  }
-
-  function saveNewBook() {
-    const title = document.getElementById('nb-title').value.trim();
-    if (!title) { showToast('请填写书名'); return; }
-
-    cycles.push({
-      id: Date.now(),
-      title,
-      author: document.getElementById('nb-author').value.trim(),
-      category: document.getElementById('nb-category').value,
-      startDate: document.getElementById('nb-start').value,
-      endDate: null,
-      rating: 0,
-      summary: '',
-      notes: []
-    });
-    save();
-    closeModal('new-book-modal');
-    showToast('已开始阅读《' + title + '》');
-  }
-
-  function openChapterModal(cycleId) {
-    currentCycleId = cycleId;
-    const lastAuthor = localStorage.getItem(AUTHOR_KEY) || '';
-    document.getElementById('ch-author').value = lastAuthor;
-    document.getElementById('ch-remember').checked = !!lastAuthor;
-    document.getElementById('ch-chapter').value = '';
-    document.getElementById('ch-date').value = new Date().toISOString().slice(0, 10);
-    document.getElementById('ch-content').value = '';
-    document.getElementById('chapter-modal').classList.add('open');
-  }
-
-  function saveChapter() {
-    const member = document.getElementById('ch-author').value.trim();
-    const chapter = document.getElementById('ch-chapter').value.trim();
-    const date = document.getElementById('ch-date').value;
-    const content = document.getElementById('ch-content').value.trim();
-
-    if (!member) { showToast('请填写你的名字'); return; }
-    if (!chapter) { showToast('请填写章节名称'); return; }
-    if (!content) { showToast('请写点心得吧'); return; }
-
-    if (document.getElementById('ch-remember').checked) {
-      localStorage.setItem(AUTHOR_KEY, member);
+function queryCash() {
+  var uid = gid("cashUid").value.trim();
+  if (!uid) { alert("请输入账号 UID"); return; }
+  _cashUid = uid;
+  log("查询账号 " + uid + " 的商店点数...");
+  gid("cashStatGrid").style.display = "none";
+  setBox("cashResult", "&#8987; 查询中...", "info");
+  try {
+    var conn = getConn("Billing");
+    var rs = new ActiveXObject("ADODB.Recordset");
+    rs.Open("SELECT * FROM dbo.CashPoints WHERE UserID='" + esc(uid) + "'", conn);
+    if (rs.EOF) {
+      setBox("cashResult", "&#10007; 未找到账号：" + uid, "warning");
+      log("账号不存在", "warn");
     } else {
-      localStorage.removeItem(AUTHOR_KEY);
+      var nCash = rs.Fields("nCash").Value;
+      gid("cashValue").innerText = commas(nCash);
+      gid("cashStatGrid").style.display = "grid";
+
+      // 显示关键字段（中文标签）
+      var fieldMap = { oidUser:"主键ID", UserID:"账号", nCash:"商店点数", LastUpdate:"最后更新时间" };
+      var html = "<table class='data-table'><thead><tr><th>字段</th><th>值</th></tr></thead><tbody>";
+      var fields = rs.Fields;
+      for (var i=0; i<fields.Count; i++) {
+        var fname = fields(i).Name;
+        var v = fields(i).Value;
+        var label = fieldMap[fname] || fname;
+        var valStr = (v===null) ? "NULL" : v;
+        // 时间格式化：只取日期时间部分，去掉时区描述
+        if (fname === "LastUpdate" && v !== null) {
+          var d = new Date(v);
+          valStr = d.getFullYear() + "-"
+            + ("0"+(d.getMonth()+1)).slice(-2) + "-"
+            + ("0"+d.getDate()).slice(-2) + " "
+            + ("0"+d.getHours()).slice(-2) + ":"
+            + ("0"+d.getMinutes()).slice(-2) + ":"
+            + ("0"+d.getSeconds()).slice(-2);
+        }
+        // 点数加千分位
+        if (fname === "nCash" && v !== null) valStr = commas(v);
+        html += "<tr><td style='color:#a8b2c1;font-weight:bold'>" + label + "</td><td style='color:#fff'>" + valStr + "</td></tr>";
+      }
+      html += "</tbody></table>";
+      setBox("cashResult", html, "success");
+      log("查询成功，nCash=" + nCash, "ok");
+    }
+    rs.Close(); conn.Close();
+  } catch(e) {
+    setBox("cashResult", "&#10007; 查询失败: " + e.message, "error");
+    log("查询失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function opCash(type) {
+  var uid = _cashUid || gid("cashUid").value.trim();
+  if (!uid) { alert("请先查询一个账号 UID"); return; }
+  var amt = gid("cashOpAmount").value.trim();
+  if (!amt || isNaN(parseInt(amt)) || parseInt(amt) < 0) { alert("请输入有效的正整数数量"); return; }
+  amt = parseInt(amt);
+  var names = {add:"发放", sub:"扣除", set:"设为"};
+  if (!confirm("确认给账号 [" + uid + "] " + names[type] + " " + commas(amt) + " 点数？")) return;
+  var sql;
+  if (type==="add")      sql = "UPDATE dbo.CashPoints SET nCash=nCash+" + amt + " WHERE UserID='" + esc(uid) + "'";
+  else if (type==="sub") sql = "UPDATE dbo.CashPoints SET nCash=nCash-" + amt + " WHERE UserID='" + esc(uid) + "'";
+  else                   sql = "UPDATE dbo.CashPoints SET nCash=" + amt + " WHERE UserID='" + esc(uid) + "'";
+  log(names[type] + " " + commas(amt) + " 点数...");
+  gid("cashOpResult").style.display = "";
+  setBox("cashOpResult", "&#8987; 执行中...", "info");
+  try {
+    var conn = getConn("Billing");
+    conn.Execute(sql);
+    var rs2 = conn.Execute("SELECT @@ROWCOUNT"); var rows = rs2(0).Value; rs2.Close();
+    conn.Close();
+    if (rows > 0) {
+      log(names[type] + "成功", "ok");
+      setBox("cashOpResult", "&#10003; " + names[type] + " 成功！正在刷新...", "success");
+      queryCash();
+    } else {
+      setBox("cashOpResult", "&#10007; 账号 " + uid + " 不存在，操作未生效", "warning");
+      log("账号不存在", "warn");
+    }
+  } catch(e) {
+    setBox("cashOpResult", "&#10007; 失败: " + e.message, "error");
+    log(names[type] + "失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function quickCash(amount) {
+  var uid = gid("cashUid").value.trim();
+  if (!uid) { alert("请先输入账号 UID 并查询"); return; }
+  gid("cashOpAmount").value = amount;
+  opCash("add");
+}
+
+// ========== 角色修改 ==========
+function queryChar() {
+  var name = gid("charName").value.trim();
+  if (!name) { alert("请输入角色名"); return; }
+  log("查询角色 " + name + "...");
+  gid("charStatGrid").style.display = "none";
+  setBox("charResult", "&#8987; 查询中...", "info");
+  try {
+    var conn = getConn("v3_character");
+    var rs = new ActiveXObject("ADODB.Recordset");
+    rs.Open("SELECT * FROM dbo.Characters WHERE CharacterName='" + esc(name) + "'", conn);
+    if (rs.EOF) {
+      setBox("charResult", "&#10007; 未找到角色：" + name, "warning");
+      log("角色不存在", "warn");
+    } else {
+      gid("charLevel").innerText  = rs.Fields("stageLevel").Value;
+      gid("charPvp").innerText    = rs.Fields("pvplevel").Value;
+      gid("charMoney").innerText  = commas(rs.Fields("gameMoney").Value);
+      gid("charSkill").innerText  = rs.Fields("skillPoint").Value;
+      gid("charStatGrid").style.display = "grid";
+      var charFieldMap = {
+        CharacterName:"角色名", stageLevel:"等级", pvplevel:"格斗等级",
+        gameMoney:"金币", skillPoint:"技能点"
+      };
+      var showFields = ["CharacterName","stageLevel","pvplevel","gameMoney","skillPoint"];
+      var html = "<table class='data-table'><thead><tr><th>字段</th><th>值</th></tr></thead><tbody>";
+      for (var i=0; i<showFields.length; i++) {
+        var fn = showFields[i];
+        try {
+          var v = rs.Fields(fn).Value;
+          var label = charFieldMap[fn] || fn;
+          var valStr = (v===null) ? "NULL" : (fn==="gameMoney" ? commas(v) : v);
+          html += "<tr><td style='color:#a8b2c1;font-weight:bold'>" + label + "</td><td style='color:#fff'>" + valStr + "</td></tr>";
+        } catch(e2) {}
+      }
+      html += "</tbody></table>";
+      setBox("charResult", html, "success");
+      log("查询成功", "ok");
+    }
+    rs.Close(); conn.Close();
+  } catch(e) {
+    setBox("charResult", "&#10007; 查询失败: " + e.message, "error");
+    log("查询失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function setCharField(field, inputId) {
+  var name = gid("charName").value.trim();  // 直接用查询框的角色名
+  var val  = gid(inputId).value.trim();
+  if (!name) { alert("请先查询一个角色"); return; }
+  if (!val || isNaN(parseInt(val))) { alert("请输入有效的整数"); return; }
+  var warns = { stageLevel:"等级最大99，超过进游戏报错！", pvplevel:"格斗等级最大4！", skillPoint:"技能点不要大于999！" };
+  var msg = "确认修改 [" + name + "] 的 " + field + " = " + val + "？";
+  if (warns[field]) msg += "\n\n⚠ " + warns[field];
+  if (!confirm(msg)) return;
+  var sql = "UPDATE dbo.Characters SET " + field + "=" + parseInt(val) + " WHERE CharacterName='" + esc(name) + "'";
+  log("修改 " + field + "...");
+  gid("charEditResult").style.display = "";
+  setBox("charEditResult", "&#8987; 执行中...", "info");
+  try {
+    var conn = getConn("v3_character");
+    conn.Execute(sql);
+    var rs2 = conn.Execute("SELECT @@ROWCOUNT"); var rows = rs2(0).Value; rs2.Close();
+    conn.Close();
+    if (rows > 0) {
+      log("修改成功", "ok");
+      setBox("charEditResult", "&#10003; 修改成功！", "success");
+      queryChar();
+    } else {
+      setBox("charEditResult", "&#10007; 角色不存在，修改未生效", "warning");
+      log("角色不存在", "warn");
+    }
+  } catch(e) {
+    setBox("charEditResult", "&#10007; 失败: " + e.message, "error");
+    log("修改失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+// ========== 转生修改 ==========
+function queryRebirth() {
+  var name = gid("rebirthName").value.trim();
+  if (!name) { alert("请输入角色名"); return; }
+  log("查询转生 " + name + "...");
+  gid("rebirthStatGrid").style.display = "none";
+  setBox("rebirthResult", "&#8987; 查询中...", "info");
+  try {
+    var conn = getConn("v3_character");
+    var rs = new ActiveXObject("ADODB.Recordset");
+    rs.Open("SELECT * FROM dbo.CharacterRebirth WHERE CharacterName='" + esc(name) + "'", conn);
+    if (rs.EOF) {
+      setBox("rebirthResult", "&#10007; 未找到转生记录：" + name, "warning");
+      log("无转生记录", "warn");
+    } else {
+      gid("rebirthCount").innerText  = rs.Fields("rebirthCount").Value;
+      gid("rebirthStored").innerText = rs.Fields("storedlevel").Value;
+      try { gid("rebirthSkillVal").innerText = rs.Fields("SkillsPoint").Value; } catch(e2) { gid("rebirthSkillVal").innerText = "-"; }
+      gid("rebirthStatGrid").style.display = "grid";
+      var rbFieldMap = {
+        CharacterName:"角色名", rebirthCount:"转生次数",
+        storedlevel:"累计等级", SkillsPoint:"转生技能点"
+      };
+      var rbShowFields = ["CharacterName","rebirthCount","storedlevel","SkillsPoint"];
+      var html = "<table class='data-table'><thead><tr><th>字段</th><th>值</th></tr></thead><tbody>";
+      for (var i=0; i<rbShowFields.length; i++) {
+        var fn = rbShowFields[i];
+        try {
+          var v = rs.Fields(fn).Value;
+          var label = rbFieldMap[fn] || fn;
+          html += "<tr><td style='color:#a8b2c1;font-weight:bold'>" + label + "</td><td style='color:#fff'>" + (v===null?"NULL":v) + "</td></tr>";
+        } catch(e2) {}
+      }
+      html += "</tbody></table>";
+      setBox("rebirthResult", html, "success");
+      log("查询成功", "ok");
+    }
+    rs.Close(); conn.Close();
+  } catch(e) {
+    setBox("rebirthResult", "&#10007; 查询失败: " + e.message, "error");
+    log("查询失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function setRebirthField(field, inputId) {
+  var name = gid("rebirthName").value.trim();
+  var val  = gid(inputId).value.trim();
+  if (!name) { alert("请先查询一个角色"); return; }
+  if (!val || isNaN(parseInt(val))) { alert("请输入有效的整数"); return; }
+  var warns = { rebirthCount:"转生次数最大99，超过报错！", storedlevel:"99x99=9801，最大9999！", SkillsPoint:"直接填0就好" };
+  var msg = "确认修改 [" + name + "] 的 " + field + " = " + val + "？";
+  if (warns[field]) msg += "\n\n⚠ " + warns[field];
+  if (!confirm(msg)) return;
+  var sql = "UPDATE dbo.CharacterRebirth SET " + field + "=" + parseInt(val) + " WHERE CharacterName='" + esc(name) + "'";
+  log("修改 " + field + "...");
+  gid("rebirthEditResult").style.display = "";
+  setBox("rebirthEditResult", "&#8987; 执行中...", "info");
+  try {
+    var conn = getConn("v3_character");
+    conn.Execute(sql);
+    var rs2 = conn.Execute("SELECT @@ROWCOUNT"); var rows = rs2(0).Value; rs2.Close();
+    conn.Close();
+    if (rows > 0) {
+      log("修改成功", "ok");
+      setBox("rebirthEditResult", "&#10003; 修改成功！", "success");
+      queryRebirth();
+    } else {
+      setBox("rebirthEditResult", "&#10007; 角色不存在", "warning");
+      log("角色不存在", "warn");
+    }
+  } catch(e) {
+    setBox("rebirthEditResult", "&#10007; 失败: " + e.message, "error");
+    log("修改失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+// ========== 商城物品 ==========
+var _shopRows = [];  // 缓存已加载数据
+var _shopSelOid = null;  // 当前选中行的 oidProduct
+
+function genGuid() {
+  // 生成 32 位大写 GUID（无连字符），格式与截图一致
+  var chars = "0123456789ABCDEF";
+  var g = "";
+  for (var i=0; i<32; i++) g += chars[Math.floor(Math.random()*16)];
+  // 按 {8-4-4-4-12} 格式加花括号，与截图一致
+  g = "{"+g.substr(0,8)+"-"+g.substr(8,4)+"-"+g.substr(12,4)+"-"+g.substr(16,4)+"-"+g.substr(20,12)+"}";
+  gid("shpGuid").value = g;
+}
+
+function shopClear() {
+  gid("shpOid").value = "";
+  gid("shpGuid").value = "";
+  gid("shpCat1").value = "90";
+  gid("shpCat2").value = "1";
+  gid("shpStatus").value = "25";
+  gid("shpName").value = "";
+  gid("shpCode").value = "";
+  gid("shpExpire").value = "1";
+  gid("shpEA").value = "1";
+  gid("shpDesc").value = "";
+  gid("shpPrice").value = "0";
+  gid("shpSalePrice").value = "0";
+  gid("shpVipPrice").value = "0";
+  _shopSelOid = null;
+  setBox("shopOpResult", "已清空", "info");
+}
+
+function shopGetDb() { return "d-shop"; }
+
+function shopLoad() {
+  setBox("shopOpResult", "&#8987; 正在读取商城物品...", "info");
+  log("读取商城物品...");
+  try {
+    var conn = getConn(shopGetDb());
+    var rs = new ActiveXObject("ADODB.Recordset");
+    rs.Open("SELECT oidProduct,strGUID,nCategory1,nCategory2,nProductStatus,strProductName,strProductCode,nProductExpire,nProductEA,strDescription,nProductPrice,nSalePrice,nSalePriceVIP FROM dbo.tblProduct ORDER BY oidProduct DESC", conn);
+    _shopRows = [];
+    var html = "";
+    var count = 0;
+    while (!rs.EOF) {
+      var row = {
+        oid:       rs.Fields("oidProduct").Value,
+        guid:      rs.Fields("strGUID").Value,
+        cat1:      rs.Fields("nCategory1").Value,
+        cat2:      rs.Fields("nCategory2").Value,
+        status:    rs.Fields("nProductStatus").Value,
+        name:      rs.Fields("strProductName").Value,
+        code:      rs.Fields("strProductCode").Value,
+        expire:    rs.Fields("nProductExpire").Value,
+        ea:        rs.Fields("nProductEA").Value,
+        desc:      rs.Fields("strDescription").Value,
+        price:     rs.Fields("nProductPrice").Value,
+        sale:      rs.Fields("nSalePrice").Value,
+        vip:       rs.Fields("nSalePriceVIP").Value
+      };
+      _shopRows.push(row);
+      var n = function(v){ return v===null?"":v; };
+      html += "<tr onclick='shopSelectRow("+count+")' style='cursor:pointer'>"
+        + "<td>"+n(row.oid)+"</td>"
+        + "<td style='font-size:10px'>"+n(row.guid)+"</td>"
+        + "<td>"+n(row.cat1)+"</td>"
+        + "<td>"+n(row.cat2)+"</td>"
+        + "<td>"+n(row.status)+"</td>"
+        + "<td>"+n(row.name)+"</td>"
+        + "<td>"+n(row.code)+"</td>"
+        + "<td>"+n(row.expire)+"</td>"
+        + "<td>"+n(row.ea)+"</td>"
+        + "<td>"+n(row.price)+"</td>"
+        + "<td>"+n(row.sale)+"</td>"
+        + "<td>"+n(row.vip)+"</td>"
+        + "</tr>";
+      count++;
+      rs.MoveNext();
+    }
+    rs.Close(); conn.Close();
+    gid("shopTableBody").innerHTML = html || "<tr><td colspan='12' style='text-align:center;color:#556;padding:20px'>商城暂无物品</td></tr>";
+    gid("shopCount").innerText = "共 " + count + " 件物品";
+    setBox("shopOpResult", "&#10003; 已加载 " + count + " 件物品", "success");
+    log("商城读取完成，" + count + " 件", "ok");
+  } catch(e) {
+    setBox("shopOpResult", "&#10007; 读取失败: " + e.message, "error");
+    log("商城读取失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function shopSelectRow(idx) {
+  var row = _shopRows[idx];
+  if (!row) return;
+  _shopSelOid = row.oid;
+  var n = function(v){ return v===null?"":v; };
+  gid("shpOid").value        = n(row.oid);
+  gid("shpGuid").value       = n(row.guid);
+  gid("shpCat1").value       = n(row.cat1);
+  gid("shpCat2").value       = n(row.cat2);
+  gid("shpStatus").value     = n(row.status);
+  gid("shpName").value       = n(row.name);
+  gid("shpCode").value       = n(row.code);
+  gid("shpExpire").value     = n(row.expire);
+  gid("shpEA").value         = n(row.ea);
+  gid("shpDesc").value       = n(row.desc);
+  gid("shpPrice").value      = n(row.price);
+  gid("shpSalePrice").value  = n(row.sale);
+  gid("shpVipPrice").value   = n(row.vip);
+  // 高亮选中行
+  var trs = gid("shopTableBody").getElementsByTagName("tr");
+  for (var i=0; i<trs.length; i++) trs[i].style.background = "";
+  trs[idx].style.background = "#1a3a6a";
+  setBox("shopOpResult", "已选中：" + n(row.name) + "（ID=" + n(row.oid) + "）", "info");
+}
+
+function _shopGetInputs() {
+  return {
+    guid:   gid("shpGuid").value.trim(),
+    cat1:   parseInt(gid("shpCat1").value)||90,
+    cat2:   parseInt(gid("shpCat2").value)||1,
+    status: parseInt(gid("shpStatus").value)||25,
+    name:   gid("shpName").value.trim(),
+    code:   gid("shpCode").value.trim(),
+    expire: parseInt(gid("shpExpire").value)||1,
+    ea:     parseInt(gid("shpEA").value)||1,
+    desc:   gid("shpDesc").value.trim(),
+    price:  parseInt(gid("shpPrice").value)||0,
+    sale:   parseInt(gid("shpSalePrice").value)||0,
+    vip:    parseInt(gid("shpVipPrice").value)||0
+  };
+}
+
+function shopAdd() {
+  var d = _shopGetInputs();
+  if (!d.guid) { alert("请先点击「随机生成」生成 GUID"); return; }
+  if (!d.name) { alert("请填写物品名称"); return; }
+  if (!d.code) { alert("请填写物品代码"); return; }
+  if (!confirm("确认新增物品「" + d.name + "」？")) return;
+  var sql = "INSERT INTO dbo.tblProduct (strGUID,nCategory1,nCategory2,nProductStatus,strProductName,strProductCode,nProductExpire,nProductEA,strDescription,nProductPrice,nSalePrice,nSalePriceVIP) VALUES ('"
+    + esc(d.guid) + "'," + d.cat1 + "," + d.cat2 + "," + d.status + ",'"
+    + esc(d.name) + "','" + esc(d.code) + "'," + d.expire + "," + d.ea + ",'"
+    + esc(d.desc) + "'," + d.price + "," + d.sale + "," + d.vip + ")";
+  log("新增物品: " + d.name);
+  setBox("shopOpResult", "&#8987; 新增中...", "info");
+  try {
+    var conn = getConn(shopGetDb());
+    conn.Execute(sql);
+    conn.Close();
+    setBox("shopOpResult", "&#10003; 新增成功！已自动刷新列表", "success");
+    log("新增成功: " + d.name, "ok");
+    shopLoad();
+  } catch(e) {
+    setBox("shopOpResult", "&#10007; 新增失败: " + e.message, "error");
+    log("新增失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function shopUpdate() {
+  var oid = gid("shpOid").value.trim() || _shopSelOid;
+  if (!oid) { alert("请先点击列表中的行以选择要修改的物品"); return; }
+  var d = _shopGetInputs();
+  if (!d.name) { alert("请填写物品名称"); return; }
+  if (!confirm("确认修改物品 ID=" + oid + "「" + d.name + "」？")) return;
+  var sql = "UPDATE dbo.tblProduct SET"
+    + " strGUID='"         + esc(d.guid)   + "'"
+    + ",nCategory1="       + d.cat1
+    + ",nCategory2="       + d.cat2
+    + ",nProductStatus="   + d.status
+    + ",strProductName='"  + esc(d.name)   + "'"
+    + ",strProductCode='"  + esc(d.code)   + "'"
+    + ",nProductExpire="   + d.expire
+    + ",nProductEA="       + d.ea
+    + ",strDescription='"  + esc(d.desc)   + "'"
+    + ",nProductPrice="    + d.price
+    + ",nSalePrice="       + d.sale
+    + ",nSalePriceVIP="    + d.vip
+    + " WHERE oidProduct=" + parseInt(oid);
+  log("修改物品 ID=" + oid);
+  setBox("shopOpResult", "&#8987; 修改中...", "info");
+  try {
+    var conn = getConn(shopGetDb());
+    conn.Execute(sql);
+    conn.Close();
+    setBox("shopOpResult", "&#10003; 修改成功！已自动刷新列表", "success");
+    log("修改成功 ID=" + oid, "ok");
+    shopLoad();
+  } catch(e) {
+    setBox("shopOpResult", "&#10007; 修改失败: " + e.message, "error");
+    log("修改失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function shopDelete() {
+  var oid = gid("shpOid").value.trim() || _shopSelOid;
+  var name = gid("shpName").value.trim() || ("ID=" + oid);
+  if (!oid) { alert("请先点击列表中的行以选择要删除的物品"); return; }
+  if (!confirm("⚠ 确认删除物品「" + name + "」（ID=" + oid + "）？\n\n此操作不可恢复！")) return;
+  log("删除物品 ID=" + oid);
+  setBox("shopOpResult", "&#8987; 删除中...", "info");
+  try {
+    var conn = getConn(shopGetDb());
+    conn.Execute("DELETE FROM dbo.tblProduct WHERE oidProduct=" + parseInt(oid));
+    conn.Close();
+    setBox("shopOpResult", "&#10003; 删除成功！已自动刷新列表", "success");
+    log("删除成功 ID=" + oid, "ok");
+    shopClear();
+    shopLoad();
+  } catch(e) {
+    setBox("shopOpResult", "&#10007; 删除失败: " + e.message, "error");
+    log("删除失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+// ========== SQL 执行 ==========
+function clearSQL() {
+  gid("sqlResultWrap").innerHTML = '<div style="padding:10px;color:#556;font-size:12px;">已清空</div>';
+  gid("sqlStatus").innerText = "";
+}
+
+function execSQL(isUpdate) {
+  var sql = gid("sqlInput").value.trim();
+  if (!sql) return;
+  var db = gid("sqlDatabase").value;
+  if (isUpdate && !confirm("确认执行更新/写入操作？\n\n" + sql.substr(0,400))) return;
+  log("执行 SQL（" + db + ")...");
+  gid("sqlStatus").innerText = "执行中...";
+  gid("sqlResultWrap").innerHTML = '<div style="padding:10px;color:#3498db;font-size:12px;">⏳ 查询中...</div>';
+  try {
+    var conn = getConn(db);
+    if (isUpdate) {
+      conn.Execute(sql);
+      var rs2 = conn.Execute("SELECT @@ROWCOUNT"); var rows = rs2(0).Value; rs2.Close();
+      conn.Close();
+      gid("sqlResultWrap").innerHTML = '<div style="padding:10px;color:#2ecc71;font-size:12px;">✓ 执行成功，影响 ' + rows + ' 行</div>';
+      gid("sqlStatus").innerText = "执行完成，影响 " + rows + " 行";
+      log("更新完成，影响 " + rows + " 行", "ok");
+    } else {
+      var rs = new ActiveXObject("ADODB.Recordset");
+      rs.Open(sql, conn);
+      if (rs.State === 0 || rs.EOF) {
+        gid("sqlResultWrap").innerHTML = '<div style="padding:10px;color:#a8b2c1;font-size:12px;">查询无结果</div>';
+        gid("sqlStatus").innerText = "无结果";
+        log("查询完成，无结果", "ok");
+      } else {
+        var html = "<table class='data-table'><thead><tr>";
+        var fields = rs.Fields; var colCount = fields.Count;
+        for (var i=0; i<colCount; i++) html += "<th>" + fields(i).Name + "</th>";
+        html += "</tr></thead><tbody>";
+        var rowCount = 0;
+        while (!rs.EOF && rowCount < 500) {
+          html += "<tr>";
+          for (var i=0; i<colCount; i++) {
+            var v = rs(i).Value;
+            html += "<td>" + (v===null?"NULL":v) + "</td>";
+          }
+          html += "</tr>";
+          rs.MoveNext(); rowCount++;
+        }
+        html += "</tbody></table>";
+        gid("sqlResultWrap").innerHTML = html;
+        gid("sqlStatus").innerText = "返回 " + rowCount + " 行" + (rowCount===500?" (已截断至500行)":"");
+        log("查询完成，" + rowCount + " 行", "ok");
+      }
+      rs.Close(); conn.Close();
+    }
+  } catch(e) {
+    gid("sqlResultWrap").innerHTML = '<div style="padding:10px;color:#e74c3c;font-size:12px;">✗ ' + e.message + '</div>';
+    gid("sqlStatus").innerText = "执行失败";
+    log("SQL 失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+// ========== SQL 参考模板 ==========
+var samples = [
+  { title:"查所有商城物品",
+    sql:"SELECT TOP 100 oidProduct,strGUID,nCategory1,strProductName,strProductCode,nProductExpire FROM dbo.tblProduct ORDER BY oidProduct DESC" },
+  { title:"查所有账号点数（按点数倒序）",
+    sql:"SELECT TOP 50 UserID, nCash FROM dbo.CashPoints ORDER BY nCash DESC" },
+  { title:"查角色基本信息",
+    sql:"SELECT CharacterName, stageLevel, pvplevel, gameMoney, skillPoint FROM dbo.Characters WHERE CharacterName='角色名'" },
+  { title:"查所有角色（按等级倒序）",
+    sql:"SELECT TOP 50 CharacterName, stageLevel, pvplevel, gameMoney, skillPoint FROM dbo.Characters ORDER BY stageLevel DESC" },
+  { title:"查转生信息",
+    sql:"SELECT * FROM dbo.CharacterRebirth WHERE CharacterName='角色名'" },
+  { title:"给账号发点数（+5000）",
+    sql:"UPDATE dbo.CashPoints SET nCash=nCash+5000 WHERE UserID='账号ID'" },
+  { title:"直接设置角色等级为99",
+    sql:"UPDATE dbo.Characters SET stageLevel=99 WHERE CharacterName='角色名'" },
+  { title:"设置金币",
+    sql:"UPDATE dbo.Characters SET gameMoney=999999 WHERE CharacterName='角色名'" }
+];
+(function() {
+  var html = "";
+  for (var i=0; i<samples.length; i++) {
+    html += '<div onclick="fillSQL('+i+')" style="cursor:pointer;padding:6px 10px;margin-bottom:4px;background:#0d1b3e;border:1px solid #1e2a4a;border-radius:4px;transition:border-color 0.2s" onmouseover="this.style.borderColor=\'#3498db\'" onmouseout="this.style.borderColor=\'#1e2a4a\'">'
+      + '<div style="font-size:11px;color:#a8b2c1;margin-bottom:3px;">&#128221; ' + samples[i].title + '</div>'
+      + '<div style="font-family:Consolas,monospace;font-size:11px;color:#2ecc71">' + samples[i].sql + '</div>'
+      + '</div>';
+  }
+  gid("sqlSamples").innerHTML = html;
+})();
+function fillSQL(idx) {
+  var s = samples[idx];
+  gid("sqlInput").value = s.sql;
+  if (s.sql.indexOf("UPDATE")===-1 && s.sql.indexOf("INSERT")===-1) {
+    var db = (s.sql.indexOf("CashPoints")>=0 || s.sql.indexOf("Billing")>=0) ? "Billing"
+           : (s.sql.indexOf("tblProduct")>=0 || s.sql.indexOf("d-shop")>=0)  ? "d-shop"
+           : "v3_character";
+    gid("sqlDatabase").value = db;
+  }
+}
+
+// ========== 物品发送 ==========
+var _sendCharOid = null;  // 目标角色的 oid（如需要）
+
+function sendQueryChar() {
+  var name = gid("sendCharName").value.trim();
+  if (!name) { alert("请输入角色名"); return; }
+  log("查询角色 " + name + "...");
+  var box = gid("sendCharResult");
+  box.style.display = "";
+  setBox("sendCharResult", "&#8987; 查询中...", "info");
+  try {
+    var conn = getConn("v3_character");
+    var rs = new ActiveXObject("ADODB.Recordset");
+    rs.Open("SELECT CharacterName, stageLevel, pvplevel FROM dbo.Characters WHERE CharacterName='" + esc(name) + "'", conn);
+    if (rs.EOF) {
+      setBox("sendCharResult", "&#10007; 未找到角色：" + name, "warning");
+      log("角色不存在", "warn");
+      _sendCharOid = null;
+    } else {
+      var lvl = rs.Fields("stageLevel").Value;
+      var pvp = rs.Fields("pvplevel").Value;
+      setBox("sendCharResult", "&#10003; 角色 <b>" + name + "</b>　等级: " + lvl + "　格斗等级: " + pvp, "success");
+      _sendCharOid = name;  // 用角色名作为标识
+      log("角色查询成功: " + name, "ok");
+    }
+    rs.Close(); conn.Close();
+  } catch(e) {
+    setBox("sendCharResult", "&#10007; 查询失败: " + e.message, "error");
+    log("查询失败: " + e.message, "err");
+    setStatus(false);
+  }
+}
+
+function sendClear() {
+  for (var i=1; i<=5; i++) {
+    gid("sendCode"+i).value = "";
+    gid("sendQty"+i).value  = "1";
+    gid("sendAttr"+i).value = "0";
+  }
+  gid("sendResult").style.display = "none";
+  setBox("sendResult", "", "");
+  log("物品发送表单已清空");
+}
+
+function sendItems() {
+  var charName = gid("sendCharName").value.trim();
+  if (!charName) { alert("请先输入并查询角色名"); return; }
+  if (!_sendCharOid) { alert("请先点击「读取角色信息」确认角色存在"); return; }
+
+  // 收集有效物品行（物品代码不为空）
+  var items = [];
+  for (var i=1; i<=5; i++) {
+    var code = gid("sendCode"+i).value.trim();
+    if (!code) continue;
+    var qty  = parseInt(gid("sendQty"+i).value) || 1;
+    var attr = parseInt(gid("sendAttr"+i).value) || 0;
+    if (qty < 1) qty = 1;
+    items.push({ code:code, qty:qty, attr:attr });
+  }
+  if (items.length === 0) { alert("请至少填写一件物品代码"); return; }
+
+  // 确认提示
+  var confirmMsg = "确认向角色 [" + charName + "] 发送以下物品？\n\n";
+  for (var j=0; j<items.length; j++) {
+    confirmMsg += "  代码: " + items[j].code + "  数量: " + items[j].qty + "  属性: " + items[j].attr + "\n";
+  }
+  if (!confirm(confirmMsg)) return;
+
+  log("发送物品给 " + charName + "，共 " + items.length + " 件...");
+  gid("sendResult").style.display = "";
+  setBox("sendResult", "&#8987; 发送中...", "info");
+
+  try {
+    var conn = getConn("v3_character");
+
+    // Step 1: 获取物品序列号基数（与 SendMail.asp 逻辑一致）
+    var rsSerial = conn.Execute("SELECT dbo.GetItemSerial(GETDATE())");
+    var itemSerial = rsSerial(0).Value;
+    rsSerial.Close();
+
+    // Step 2: 调用 dbo.SendMail 存储过程创建邮件，返回 mailId
+    var cmd1 = new ActiveXObject("ADODB.Command");
+    cmd1.ActiveConnection = conn;
+    cmd1.CommandText = "dbo.SendMail";
+    cmd1.CommandType = 4; // adCmdStoredProc
+
+    var pRet   = cmd1.CreateParameter("RETURN_VALUE", 3,  4, 0, 0);     // adInteger, adParamReturnValue
+    var pChar  = cmd1.CreateParameter("@characterName", 202, 1, 50, charName);
+    var pSend  = cmd1.CreateParameter("@sender",    202, 1, 50, "GM");
+    var pTitle = cmd1.CreateParameter("@title",     202, 1, 20, "GM\u53D1\u653E\u7269\u54C1");
+    var pMsg   = cmd1.CreateParameter("@message",   202, 1, 150,"GM\u53D1\u653E\u7269\u54C1");
+    var pMoney = cmd1.CreateParameter("@gameMoney", 20,  1, 0, 0);      // adBigInt
+    var pStamp = cmd1.CreateParameter("@cashStampHash", 3, 1, 0, 0);
+    var pState = cmd1.CreateParameter("@state",     17,  1, 0, 8);      // adUnsignedTinyInt
+    var pMailId= cmd1.CreateParameter("@mailId",    20,  2, 0, 0);      // adBigInt, adParamOutput
+
+    cmd1.Parameters.Append(pRet);
+    cmd1.Parameters.Append(pChar);
+    cmd1.Parameters.Append(pSend);
+    cmd1.Parameters.Append(pTitle);
+    cmd1.Parameters.Append(pMsg);
+    cmd1.Parameters.Append(pMoney);
+    cmd1.Parameters.Append(pStamp);
+    cmd1.Parameters.Append(pState);
+    cmd1.Parameters.Append(pMailId);
+    cmd1.Execute();
+
+    var retCode = pRet.Value;
+    var mailId  = pMailId.Value;
+
+    if (retCode !== 0 || !mailId || mailId == 0) {
+      setBox("sendResult", "&#10007; 创建邮件失败，角色不存在或存储过程返回错误（retCode=" + retCode + "）", "error");
+      log("创建邮件失败 retCode=" + retCode, "err");
+      conn.Close();
+      return;
+    }
+    log("邮件创建成功 mailId=" + mailId, "ok");
+
+    // Step 3: 逐件调用 dbo.SendMailItem 插入物品
+    var successCount = 0;
+    for (var k=0; k<items.length; k++) {
+      var it = items[k];
+      itemSerial = itemSerial + 1;
+
+      var cmd2 = new ActiveXObject("ADODB.Command");
+      cmd2.ActiveConnection = conn;
+      cmd2.CommandText = "dbo.SendMailItem";
+      cmd2.CommandType = 4;
+      cmd2.Parameters.Append(cmd2.CreateParameter("@mailId",       20, 1, 0, mailId));
+      cmd2.Parameters.Append(cmd2.CreateParameter("@itemHash",      3, 1, 0, parseInt(it.code)));
+      cmd2.Parameters.Append(cmd2.CreateParameter("@stackedCount",  2, 1, 0, it.qty));  // adSmallInt
+      cmd2.Parameters.Append(cmd2.CreateParameter("@itemSerial",   20, 1, 0, itemSerial));
+      cmd2.Parameters.Append(cmd2.CreateParameter("@instance",     20, 1, 0, it.attr));
+      cmd2.Execute();
+      successCount++;
+      log("\u7269\u54C1 " + it.code + " x" + it.qty + " \u63D2\u5165\u6210\u529F", "ok");
     }
 
-    const cycle = cycles.find(c => c.id === currentCycleId);
-    if (cycle) {
-      cycle.notes.push({ id: Date.now(), chapter, date, member, content });
-      save();
-    }
-    closeModal('chapter-modal');
-    showToast('心得已保存');
+    conn.Close();
+    setBox("sendResult",
+      "&#10003; \u53D1\u9001\u6210\u529F\uFF01mailId=" + mailId + "\uFF0C\u5171 " + successCount
+      + " \u4EF6\u7269\u54C1\u5DF2\u53D1\u7ED9 [" + charName + "]<br>\u89D2\u8272\u767B\u5F55\u6E38\u620F\u540E\u5728\u90AE\u7BB1\u6536\u53D6\u5373\u53EF",
+      "success");
+    log("\u7269\u54C1\u53D1\u9001\u5B8C\u6210 mailId=" + mailId, "ok");
+
+  } catch(e) {
+    setBox("sendResult", "&#10007; 发送失败: " + e.message, "error");
+    log("发送失败: " + e.message, "err");
+    setStatus(false);
   }
+}
 
-  function editChapter(cycleId, noteId) {
-    currentCycleId = cycleId;
-    editingChapterId = noteId;
-    const cycle = cycles.find(c => c.id === cycleId);
-    const note = cycle?.notes.find(n => n.id === noteId);
-    if (!note) return;
-
-    document.getElementById('ech-author').value = note.member || '';
-    document.getElementById('ech-chapter').value = note.chapter || '';
-    document.getElementById('ech-date').value = note.date || '';
-    document.getElementById('ech-content').value = note.content || '';
-    document.getElementById('edit-chapter-modal').classList.add('open');
-  }
-
-  function updateChapter() {
-    const cycle = cycles.find(c => c.id === currentCycleId);
-    const note = cycle?.notes.find(n => n.id === editingChapterId);
-    if (!note) return;
-
-    note.member = document.getElementById('ech-author').value.trim();
-    note.chapter = document.getElementById('ech-chapter').value.trim();
-    note.date = document.getElementById('ech-date').value;
-    note.content = document.getElementById('ech-content').value.trim();
-    save();
-    closeModal('edit-chapter-modal');
-    showToast('已更新');
-  }
-
-  function deleteChapter(cycleId, noteId) {
-    if (!confirm('确认删除这条心得？')) return;
-    const cycle = cycles.find(c => c.id === cycleId);
-    if (cycle) {
-      cycle.notes = cycle.notes.filter(n => n.id !== noteId);
-      save();
-      showToast('已删除');
-    }
-  }
-
-  function openFinishModal(cycleId) {
-    currentCycleId = cycleId;
-    finishRating = 0;
-    updateFinishRatingUI(0);
-    document.getElementById('finish-summary').value = '';
-    document.getElementById('finish-modal').classList.add('open');
-  }
-
-  function setFinishRating(v) {
-    finishRating = v;
-    updateFinishRatingUI(v);
-  }
-
-  function updateFinishRatingUI(v) {
-    document.querySelectorAll('#finish-rating .rating-star').forEach(s => {
-      s.classList.toggle('selected', parseInt(s.dataset.v) <= v);
-    });
-  }
-
-  function finishBook() {
-    const cycle = cycles.find(c => c.id === currentCycleId);
-    if (cycle) {
-      cycle.endDate = new Date().toISOString().slice(0, 10);
-      cycle.rating = finishRating;
-      cycle.summary = document.getElementById('finish-summary').value.trim();
-      save();
-      closeModal('finish-modal');
-      showToast('恭喜读完《' + cycle.title + '》！');
-    }
-  }
-
-  // ── Utils ──
-  function formatDate(d) {
-    if (!d) return '—';
-    const [y, m, day] = d.split('-');
-    return `${parseInt(m)}月${parseInt(day)}日`;
-  }
-
-  function escHtml(s) {
-    return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '<br>');
-  }
-
-  function escAttr(s) {
-    return (s || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
-  }
-
-  // ── Init ──
-  document.querySelectorAll('.modal-overlay').forEach(el => {
-    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
-  });
-
-  updateStats();
-  render();
+// ========== 启动 ==========
+log("Lunia GM 工具已启动，正在自动测试连接...");
+try {
+  var _c = getConn("Billing");
+  _c.Execute("SELECT 1"); _c.Close();
+  setStatus(true, "已连接");
+  log("数据库连接成功 ✓", "ok");
+} catch(_e) {
+  setStatus(false, "连接失败");
+  log("自动连接失败: " + _e.message + " （请检查 IP/账号/密码）", "err");
+}
 </script>
+
 </body>
 </html>
